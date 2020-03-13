@@ -72,7 +72,6 @@ class filter_edusharing extends moodle_text_filter {
         global $COURSE;
         global $PAGE;
         global $edusharing_filter_loaded;
-        global $ticket;
 
         if (!isset($options['originalformat'])) {
             return $text;
@@ -86,9 +85,10 @@ class filter_edusharing extends moodle_text_filter {
 
             $context = context_course::instance($COURSE->id);
             // Ensure that user exists in repository.
-            if ( isloggedin() && has_capability('moodle/course:view', $context) ) {
-                $ccauth = new mod_edusharing_web_service_factory();
-                $ticket = $ccauth->edusharing_authentication_get_ticket();
+            //if ( isloggedin() && has_capability('moodle/course:view', $context) ) {
+            if ( isloggedin() ) {
+                //$ccauth = new mod_edusharing_web_service_factory();
+                //$ticket = $ccauth->edusharing_authentication_get_ticket();
             }else{
                 error_log('Cant use edu-sharing filter: Not logged in or not allowed to view course.');
                 return $text;
@@ -248,7 +248,7 @@ class filter_edusharing extends moodle_text_filter {
      * @return string
      */
     protected function filter_edusharing_render_inline(stdClass $edusharing, $renderparams) {
-        global $CFG, $COURSE, $ticket;
+        global $CFG, $COURSE;
 
         $objecturl = $edusharing->object_url;
         if (!$objecturl) {
@@ -264,7 +264,6 @@ class filter_edusharing extends moodle_text_filter {
                  '&mediatype=' . urlencode($renderparams['mediatype']) .
                  '&caption=' . urlencode($renderparams['caption']) .
                  '&course_id=' . urlencode($COURSE -> id) .
-                 '&ticket=' . $ticket . '">'.
                  '<div class="edusharing_spinner_inner"><div class="edusharing_spinner1"></div></div>' .
                  '<div class="edusharing_spinner_inner"><div class="edusharing_spinner2"></div></div>'.
                  '<div class="edusharing_spinner_inner"><div class="edusharing_spinner3"></div></div>'.
