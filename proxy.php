@@ -41,25 +41,23 @@ class filter_edusharing_edurender {
      * @throws Exception
      */
     public function filter_edusharing_get_render_html($url) {
-        $inline = "";
-        try {
-            $curlhandle = curl_init($url);
-            curl_setopt($curlhandle, CURLOPT_FOLLOWLOCATION, 1);
-            curl_setopt($curlhandle, CURLOPT_HEADER, 0);
-            // DO NOT RETURN HTTP HEADERS
-            curl_setopt($curlhandle, CURLOPT_RETURNTRANSFER, 1);
-            // RETURN THE CONTENTS OF THE CALL
-            curl_setopt($curlhandle, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-            curl_setopt($curlhandle, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($curlhandle, CURLOPT_SSL_VERIFYHOST, false);
-            $inline = curl_exec($curlhandle);
-            if($inline === false) {
-                trigger_error(curl_error($curlhandle), E_USER_WARNING);
-            }
-        } catch (Exception $e) {
-            trigger_error($e->getMessage(), E_USER_WARNING);
+        $curl = new curl();
+        $curl->setopt( array(
+            'CURLOPT_SSL_VERIFYPEER' => false,
+            'CURLOPT_SSL_VERIFYHOST' => false,
+            'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_HEADER' => 0,
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_USERAGENT' => $_SERVER['HTTP_USER_AGENT'],
+        ));
+
+        $inline = $curl->get($url);
+
+        if ($curl->error) {
+            debugging('cURL Error: '.$curl->error);
+            trigger_error('cURL Error: '.$curl->error);
+            exit();
         }
-        curl_close($curlhandle);
         return $inline;
     }
 
