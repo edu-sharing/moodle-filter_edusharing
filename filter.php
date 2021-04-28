@@ -177,10 +177,11 @@ class filter_edusharing extends moodle_text_filter {
             parse_str(parse_url($qs, PHP_URL_QUERY), $params);
         }
 
-
         $edusharing = $DB->get_record(EDUSHARING_TABLE, array('id' => (int) $params['resourceId']));
 
         if (!$edusharing) {
+            echo get_string('error_loading_resource', 'filter_edusharing') . '(Id: ' . $params['resourceId'] . ')<br>';
+            throw new Exception(get_string('error_loading_resource', 'filter_edusharing'));
             trigger_error(get_string('error_loading_resource', 'filter_edusharing'), E_USER_WARNING);
             return false;
         }
@@ -268,6 +269,11 @@ class filter_edusharing extends moodle_text_filter {
                  '<div class="edusharing_spinner_inner"><div class="edusharing_spinner2"></div></div>'.
                  '<div class="edusharing_spinner_inner"><div class="edusharing_spinner3"></div></div>'.
                  'edu sharing object</div>';
+
+        // amd-js is not being loaded in format_tiles-plugin, so we add it here
+        if ($COURSE->format == 'tiles'){
+            $inline .= '<script src="'.$CFG->wwwroot.'/filter/edusharing/fallback.js"></script>';
+        }
         return $inline;
     }
 }

@@ -27,7 +27,7 @@ $plugin->component = 'filter_edusharing';
 $plugin->dependencies = array(
     'mod_edusharing'  => 2018072701,
 );
-$plugin->version = 2021011501;
+$plugin->version = 2021042701;
 $plugin->requires = 2015051100;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = 'v5.0';
