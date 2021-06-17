@@ -87,8 +87,8 @@ class filter_edusharing extends moodle_text_filter {
             // Ensure that user exists in repository.
             //if ( isloggedin() && has_capability('moodle/course:view', $context) ) {
             if ( isloggedin() ) {
-                //$ccauth = new mod_edusharing_web_service_factory();
-                //$ticket = $ccauth->edusharing_authentication_get_ticket();
+                $ccauth = new mod_edusharing_web_service_factory();
+                $ticket = $ccauth->edusharing_authentication_get_ticket();
             }else{
                 error_log('Cant use edu-sharing filter: Not logged in or not allowed to view course.');
                 return $text;
@@ -140,6 +140,7 @@ class filter_edusharing extends moodle_text_filter {
      */
     private function filter_edusharing_convert_object($object, $tinymce = false) {
         global $DB;
+        global $CFG, $COURSE;
         $doc = new DOMDocument();
         $doc->loadHTML($object);
 

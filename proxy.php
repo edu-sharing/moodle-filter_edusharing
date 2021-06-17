@@ -81,10 +81,10 @@ class filter_edusharing_edurender {
 
         $html = preg_replace("/<es:title[^>]*>.*<\/es:title>/Uims", utf8_decode(optional_param('title', '', PARAM_TEXT)), $html);
 
-        if (strpos($html, 'data-es-auth-required="true"') !== false){
+        if (strpos($html, 'data-es-auth-required=true') !== false){
             $ccauth = new mod_edusharing_web_service_factory();
             $ticket = $ccauth->edusharing_authentication_get_ticket();
-            $html = str_replace('" data-es-auth-required="true"', '&ticket='.$ticket.'"', $html);
+            $html = str_replace('data-es-auth-required=true', 'ticket='.$ticket.'"', $html);
         }
 
         $caption = utf8_decode(optional_param('caption', '', PARAM_TEXT));
