@@ -33,3 +33,4 @@ $string['error_loading_node'] = 'Objekt kann nicht geladen werden.';
 $string['error_loading_resource'] = 'Ressource kann nicht aus der Datenbank geladen werden.';
 $string['error_missing_instance_id'] = 'Ungültige Instanz ID';
 $string['error_empty_object_url'] = 'Ungültige Objekt-URL';
+$string['error_curl'] = '{$a} cURL Fehler: ';

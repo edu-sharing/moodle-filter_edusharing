@@ -54,6 +54,7 @@ class filter_edusharing_edurender {
         $inline = $curl->get($url);
 
         if ($curl->error) {
+            return get_string('error_curl', 'filter_edusharing', get_config('edusharing', 'application_appname')) . $curl->error;
             debugging('cURL Error: '.$curl->error);
             trigger_error('cURL Error: '.$curl->error);
             exit();
