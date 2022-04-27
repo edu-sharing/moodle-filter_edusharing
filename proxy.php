@@ -21,6 +21,8 @@
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+global $CFG;
+
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__) . '/../../mod/edusharing/lib.php');
 
@@ -69,6 +71,8 @@ class filter_edusharing_edurender {
      */
     public function filter_edusharing_display($html) {
         global $CFG;
+        require_once($CFG->dirroot . '/mod/edusharing/lib/EduSharingService.php');
+
         error_reporting(0);
         $resid = required_param('resId', PARAM_INT);
 
@@ -83,8 +87,8 @@ class filter_edusharing_edurender {
         $html = preg_replace("/<es:title[^>]*>.*<\/es:title>/Uims", utf8_decode(optional_param('title', '', PARAM_TEXT)), $html);
 
         if (strpos($html, 'data-es-auth-required=true') !== false){
-            $ccauth = new mod_edusharing_web_service_factory();
-            $ticket = $ccauth->edusharing_authentication_get_ticket();
+            $eduSharingService = new EduSharingService();
+            $ticket = $eduSharingService->getTicket();
             $html = str_replace('data-es-auth-required=true', 'ticket='.$ticket.'"', $html);
         }
 

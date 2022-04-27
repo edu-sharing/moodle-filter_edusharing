@@ -23,7 +23,9 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/edusharing/lib/cclib.php');
+global $CFG;
+
+require_once($CFG->dirroot . '/mod/edusharing/lib/EduSharingService.php');
 require_once($CFG->dirroot . '/mod/edusharing/lib.php');
 require_once($CFG->dirroot . '/mod/edusharing/locallib.php');
 
@@ -87,8 +89,8 @@ class filter_edusharing extends moodle_text_filter {
             // Ensure that user exists in repository.
             //if ( isloggedin() && has_capability('moodle/course:view', $context) ) {
             if ( isloggedin() ) {
-                $ccauth = new mod_edusharing_web_service_factory();
-                $ticket = $ccauth->edusharing_authentication_get_ticket();
+                $eduSharingService = new EduSharingService();
+                $ticket = $eduSharingService->getTicket();
             }else{
                 error_log('Cant use edu-sharing filter: Not logged in or not allowed to view course.');
                 return $text;
