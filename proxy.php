@@ -72,6 +72,7 @@ class filter_edusharing_edurender {
     public function filter_edusharing_display($html) {
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/lib/EduSharingService.php');
+        require_once($CFG->dirroot . '/mod/edusharing/lib/cclib.php');
 
         error_reporting(0);
         $resid = required_param('resId', PARAM_INT);
@@ -87,8 +88,13 @@ class filter_edusharing_edurender {
         $html = preg_replace("/<es:title[^>]*>.*<\/es:title>/Uims", utf8_decode(optional_param('title', '', PARAM_TEXT)), $html);
 
         if (strpos($html, 'data-es-auth-required=true') !== false){
-            $eduSharingService = new EduSharingService();
-            $ticket = $eduSharingService->getTicket();
+            if (!empty(get_config('edusharing', 'repository_restApi'))) {
+                $eduSharingService = new EduSharingService();
+                $ticket = $eduSharingService->getTicket();
+            }else{
+                $ccauth = new mod_edusharing_web_service_factory();
+                $ticket = $ccauth->edusharing_authentication_get_ticket();
+            }
             $html = str_replace('data-es-auth-required=true', 'ticket='.$ticket.'"', $html);
         }
 
