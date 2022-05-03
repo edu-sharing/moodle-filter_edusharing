@@ -25,6 +25,7 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(dirname(dirname(__FILE__))).'/mod/edusharing/lib.php');
 require_once(dirname(dirname(dirname(__FILE__))). '/mod/edusharing/lib/EduSharingService.php');
+require_once(dirname(dirname(dirname(__FILE__))).'/mod/edusharing/lib/cclib.php');
 
 require_sesskey();
 
@@ -46,8 +47,13 @@ $data = get_config('edusharing', 'application_appid') . $ts . edusharing_get_obj
 $redirecturl .= '&sig=' . urlencode(edusharing_get_signature($data));
 $redirecturl .= '&signed=' . urlencode($data);
 $redirecturl .= '&closeOnBack=true';
-$eduSharingService = new EduSharingService();
-$ticket = $eduSharingService->getTicket();
+if (!empty(get_config('edusharing', 'repository_restApi'))) {
+    $eduSharingService = new EduSharingService();
+    $ticket = $eduSharingService->getTicket();
+}else{
+    $ccauth = new mod_edusharing_web_service_factory();
+    $ticket = $ccauth->edusharing_authentication_get_ticket();
+}
 $redirecturl .= '&ticket=' . urlencode(base64_encode(edusharing_encrypt_with_repo_public($ticket)));
 
 if($childobject_id)
