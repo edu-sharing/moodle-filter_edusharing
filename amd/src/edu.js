@@ -75,6 +75,12 @@ define(['jquery'], function($) {
                 renderEsObject($(this));
             });
 
+            // fix in case the theme does scroll via div/local container and not via window viewport
+            setInterval(function() {
+                $("div[data-type='esObject']:near-viewport(400)").each(function() {
+                    renderEsObject($(this));
+                });}, 1000);
+
             $(window).scroll(function() {
                 $("div[data-type='esObject']:near-viewport(400)").each(function() {
                     renderEsObject($(this));
