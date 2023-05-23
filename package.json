@@ -2,7 +2,7 @@
   "name": "moodle-filter_edusharing",
   "scripts": {
     "minify": "uglifyjs --compress --mangle --output amd/build/edu.min.js -- amd/src/edu.js",
-    "package": "cd .. && zip -r edu-sharing-filter.zip ./plugin-moodle-edu-sharing-filter/ -x \"*/.*\""
+    "package": "cd .. && zip -r edu-sharing-filter.zip ./plugin-moodle-edu-sharing-filter/ -x \"*/.*\" -x \"**/node_modules/*\""
   },
   "devDependencies": {
     "uglify-js": "~3.17.4"
