@@ -46,7 +46,7 @@ $(document).ready(function() {
             var wrapper = esObject.parent();
         }
         $.get(url, function(data) {
-            wrapper.html('').append(data).css({display: 'none', height: 'auto', width: 'auto'}).fadeIn('slow', 'linear');
+            wrapper.html('').append(data).css({display: 'none'}).fadeIn('slow', 'linear');
             if (data.toLowerCase().indexOf('data-view="lock"') >= 0) {
                 setTimeout(function() {
                     renderEsObject(esObject, wrapper);

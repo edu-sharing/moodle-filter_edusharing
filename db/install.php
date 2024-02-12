@@ -21,26 +21,34 @@
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
-
+/**
+ * Function xmldb_filter_edusharing_install
+ *
+ * @return void
+ * @throws coding_exception
+ */
 function xmldb_filter_edusharing_install() {
-    global $CFG;
-
-    // Activate and move the edusharing filter to position 1
+    // Activate and move the edusharing filter to position 1.
     filter_edusharing_reorder();
 }
 
+/**
+ * Function filter_edusharing_reorder
+ *
+ * @return void
+ * @throws coding_exception
+ */
 function filter_edusharing_reorder() {
 
     // The filter enabled is mandatory to be able to display the H5P content.
     filter_set_global_state('edusharing', TEXTFILTER_ON);
 
-    $states = filter_get_global_states();
-    $edusharingPos = $states['edusharing']->sortorder;
+    $states        = filter_get_global_states();
+    $edusharingpos = $states['edusharing']->sortorder;
 
-    while (1 < $edusharingPos) {
+    while (1 < $edusharingpos) {
         filter_set_global_state('edusharing', TEXTFILTER_ON, -1);
-        $edusharingPos--;
+        $edusharingpos--;
     }
 }
