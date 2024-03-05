@@ -9,7 +9,7 @@ variables:
   DB: "mysqli"
   MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
-  MOODLE_BRANCH: "MOODLE_311_STABLE"
+  MOODLE_BRANCH: "MOODLE_433_STABLE"
   # Only needed, when your project is within a group/subgroup of "moodle".
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
@@ -40,7 +40,7 @@ test:
     - moodle-plugin-ci install --moodle=$MOODLE_DIR --db-host=mysql --no-init -vvv
     - cd $MOODLE_DIR
     - php -S $IPADDRESS:8000 -t $MOODLE_DIR > /dev/null 2>&1 &
-    - php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=1 --optimize-runs=@local_ffhs_exam_toolbox
+    #- php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=1 --optimize-runs=@local_ffhs_exam_toolbox
 
   script:
     - moodle-plugin-ci phplint
