@@ -22,7 +22,7 @@ test:
     # Install nvm and NodeJS.
     - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
     - . $HOME/.nvm/nvm.sh
-    - nvm install latest
+    - nvm install 21.6.2
     # Install composer.
     - curl -sS https://getcomposer.org/installer | php
     - mv composer.phar /usr/local/bin/composer
