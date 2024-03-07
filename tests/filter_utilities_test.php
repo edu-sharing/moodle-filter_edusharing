@@ -73,7 +73,7 @@ class filter_utilities_test extends advanced_testcase {
             ->getMock();
         $servicemock->expects($this->once())
             ->method('get_redirect_url')
-            ->with($eduusage, $user->id)
+            ->with($eduusage, $user->name)
             ->will($this->returnValue('www.url.de'));
         $_POST['nodeId']      = 'node123';
         $_POST['nodeVersion'] = '1.2';
