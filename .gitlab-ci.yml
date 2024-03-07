@@ -19,6 +19,7 @@ variables:
 test:
   before_script:
     # Update packages and install mysql-client.
+    - ls -la moodle-plugin-ci-plugins
     - apt update && apt install -y default-mysql-client
     #- mysql -h mysql -u root -e "show databases" | grep -v Database | grep -v mysql| grep -v information_schema| gawk '{print "drop database `" $1 "`;select sleep(0.1);"}'
     # Install nvm and NodeJS.
@@ -39,7 +40,7 @@ test:
     - chmod u+x ci/bin/*
     - umask u+x
     # install main plugin
-    - ls -ls moodle-plugin-ci-plugins
+    - ls -la moodle-plugin-ci-plugins
     - moodle-plugin-ci add-plugin edu-sharing/plugin-moodle-edu-sharing
     # Install Moodle (omit the --moodle argument if not needed)
     - moodle-plugin-ci install --moodle=$MOODLE_DIR --db-host=mysql --no-init -vvv
