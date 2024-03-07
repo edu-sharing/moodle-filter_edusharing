@@ -19,7 +19,6 @@ variables:
 test:
   before_script:
     # Update packages and install mysql-client.
-    - ls -la moodle-plugin-ci-plugins
     - apt update && apt install -y default-mysql-client
     #- mysql -h mysql -u root -e "show databases" | grep -v Database | grep -v mysql| grep -v information_schema| gawk '{print "drop database `" $1 "`;select sleep(0.1);"}'
     # Install nvm and NodeJS.
@@ -34,6 +33,7 @@ test:
     - export MOODLE_BEHAT_WWWROOT="http://$IPADDRESS:8000"
     # Install Moodle CI plugin.
     - cd $CI_PROJECT_DIR/.. && rm -rf ci
+    - ls -la moodle-plugin-ci-plugins
     - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci 4.4.0
     - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
     - chmod u+x ci/bin/moodle-plugin-ci
