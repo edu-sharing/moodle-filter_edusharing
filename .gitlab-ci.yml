@@ -34,6 +34,7 @@ test:
     - export MOODLE_BEHAT_WWWROOT="http://$IPADDRESS:8000"
     - echo "ERST"
     - ls -la /builds/edu-sharing/community/integration/
+    - rm -rf /builds/edu-sharing/community/integration/*
     # Install Moodle CI plugin.
     - cd $CI_PROJECT_DIR/.. && rm -rf ci
     - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci 4.4.0
