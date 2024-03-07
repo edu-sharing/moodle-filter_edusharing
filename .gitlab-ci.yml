@@ -32,7 +32,7 @@ test:
     # Setup Behat.
     - export IPADDRESS=`grep "$HOSTNAME$" /etc/hosts | awk '{print $1}'`
     - export MOODLE_BEHAT_WWWROOT="http://$IPADDRESS:8000"
-    - echo "ERST"
+    # clean up in case of cached container
     - rm -rf /builds/edu-sharing/community/integration/moodledata
     - rm -rf /builds/edu-sharing/community/integration/moodle-plugin-ci-plugins
     # Install Moodle CI plugin.
@@ -43,19 +43,15 @@ test:
     - chmod u+x ci/bin/*
     - umask u+x
     # install main plugin
-    #- rm -rf moodle-plugin-ci-plugins
     - moodle-plugin-ci add-plugin edu-sharing/plugin-moodle-edu-sharing
     # Install Moodle (omit the --moodle argument if not needed)
     - moodle-plugin-ci install --moodle=$MOODLE_DIR --db-host=mysql --no-init -vvv
-    #- moodle-plugin-ci add-config '$CFG->phpunit_prefix = "t_";'
     - cd $MOODLE_DIR
     - php admin/tool/phpunit/cli/init.php
     # Clone API client into mod_edusharing
-    #- cd mod/edusharing/apiClient
-    #- git clone https://github.com/edu-sharing/php-auth-plugin.git
-    #- cp -a php-auth-plugin/src/. ./src
-    #- php -S $IPADDRESS:8000 -t $MOODLE_DIR > /dev/null 2>&1 &
-    #- php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=1 --optimize-runs=@local_ffhs_exam_toolbox
+    - cd mod/edusharing/apiClient
+    - git clone https://github.com/edu-sharing/php-auth-plugin.git
+    - cp -a php-auth-plugin/src/. ./src
 
   script:
     - moodle-plugin-ci phplint
