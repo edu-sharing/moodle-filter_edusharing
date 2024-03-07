@@ -18,6 +18,8 @@ variables:
 
 test:
   before_script:
+    - ls -la /
+    - mkdir /test
     # Update packages and install mysql-client.
     - apt update && apt install -y default-mysql-client
     # Install nvm and NodeJS.
