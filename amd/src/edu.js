@@ -14,7 +14,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    filter_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,7 +24,12 @@ define(['jquery'], function($) {
     return {
         init: function() {
 
+            // eslint-disable-next-line @babel/no-unused-expressions
             !(function() {
+                /**
+                 * @param {number} a
+                 * @param {number} b
+                 */
                 function a(a, b) {
                     var c = void 0 !== window.pageYOffset ? window.pageYOffset : (document.documentElement ||
                             document.body.parentNode || document.body).scrollTop,
@@ -55,6 +59,10 @@ define(['jquery'], function($) {
                 videoFormat = 'mp4';
             }
 
+            /**
+             * @param {object} esObject
+             * @param {jQuery} wrapper
+             */
             function renderEsObject(esObject, wrapper) {
                 var url = esObject.attr("data-url") + '&videoFormat=' + videoFormat;
                 if (typeof wrapper == 'undefined') {
