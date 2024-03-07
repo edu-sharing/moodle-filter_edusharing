@@ -16,7 +16,13 @@
 
 declare(strict_types=1);
 
+// Namespace does not meet PSR. Moodle likes it this way.
+namespace filter_edusharing;
+
+use advanced_testcase;
+use coding_exception;
 use core\moodle_database_for_testing;
+use dml_exception;
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\EduSharingNodeHelper;
@@ -25,9 +31,11 @@ use EduSharingApiClient\NodeDeletedException;
 use EduSharingApiClient\UrlHandling;
 use EduSharingApiClient\Usage;
 use EduSharingApiClient\UsageDeletedException;
-use filter_edusharing\FilterUtilities;
+use JsonException;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
+use moodle_exception;
+use stdClass;
 
 /**
  * class FilterUtilitiesTest
@@ -35,9 +43,9 @@ use mod_edusharing\EduSharingUserException;
  * @package    filter_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers \filter_edusharing\FilterUtilities
  */
-class FilterUtilitiesTest extends advanced_testcase
-{
+class filter_utilities_test extends advanced_testcase {
     /**
      * Function test_get_redirect_url_does_not_set_child_object_in_url_if_none_is_given
      *
@@ -45,10 +53,9 @@ class FilterUtilitiesTest extends advanced_testcase
      * @throws coding_exception
      * @throws moodle_exception
      * @throws EduSharingUserException
-     *
-     * @backupGlobals enabled
      */
     public function test_get_redirect_url_returns_return_value_of_service_method(): void {
+        $this->resetAfterTest();
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
         require_once('lib/dml/tests/dml_test.php');
@@ -88,9 +95,9 @@ class FilterUtilitiesTest extends advanced_testcase
      * @throws UsageDeletedException
      * @throws coding_exception
      * @throws dml_exception
-     * @backupGlobals enabled
      */
     public function test_get_html_returns_proper_html_if_all_goes_well(): void {
+        $this->resetAfterTest();
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
         require_once('lib/dml/tests/dml_test.php');
@@ -112,6 +119,7 @@ class FilterUtilitiesTest extends advanced_testcase
             ->method('get_record')
             ->with('edusharing', ['id' => 1], '*', MUST_EXIST)
             ->will($this->returnValue($edureturn));
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $basehelper    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $nodeconfig    = new EduSharingNodeHelperConfig(new UrlHandling(true));

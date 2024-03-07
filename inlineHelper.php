@@ -22,12 +22,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use filter_edusharing\FilterUtilities;
-use mod_edusharing\EduSharingUserException;
 
 require_once(dirname(__FILE__) . '/../../config.php');
 
 $filterutils = new FilterUtilities();
 try {
+    require_login();
     $redirecturl = $filterutils->get_redirect_url();
     redirect($redirecturl);
 } catch (Exception $exception) {
