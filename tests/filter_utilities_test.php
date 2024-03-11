@@ -34,8 +34,10 @@ use EduSharingApiClient\UsageDeletedException;
 use JsonException;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
+use mod_edusharing\UtilityFunctions;
 use moodle_exception;
 use stdClass;
+use testUtils\FakeConfig;
 
 /**
  * class FilterUtilitiesTest
@@ -73,7 +75,7 @@ class filter_utilities_test extends advanced_testcase {
             ->getMock();
         $servicemock->expects($this->once())
             ->method('get_redirect_url')
-            ->with($eduusage, $user->name)
+            ->with($eduusage, $user->username)
             ->will($this->returnValue('www.url.de'));
         $_POST['nodeId']      = 'node123';
         $_POST['nodeVersion'] = '1.2';
@@ -100,8 +102,8 @@ class filter_utilities_test extends advanced_testcase {
         $this->resetAfterTest();
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
+        require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         require_once('lib/dml/tests/dml_test.php');
-        $this->resetAfterTest();
         $_POST['URL']              = 'www.test.de/test?course_id=1&obj_id=obj123&width=100&height=200&resource_id=1';
         $edureturn                 = new stdClass();
         $edureturn->object_version = '0';
@@ -125,15 +127,20 @@ class filter_utilities_test extends advanced_testcase {
         $nodeconfig    = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authhelper    = new EduSharingAuthHelper($basehelper);
         $nodehelper    = new EduSharingNodeHelper($basehelper, $nodeconfig);
-        $servicemock   = $this->getMockBuilder(EduSharingService::class)
-            ->setConstructorArgs([$authhelper, $nodehelper])
+        $fakeconfig    = new FakeConfig();
+        $fakeconfig->set_entries([
+            'EDU_AUTH_KEY' => 'id',
+        ]);
+        $utils       = new UtilityFunctions($fakeconfig);
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->setConstructorArgs([$authhelper, $nodehelper, $utils])
             ->onlyMethods(['get_node'])
             ->getMock();
         $servicemock->expects($this->once())
             ->method('get_node')
             ->with($eduusage, $edurenderparams, $user->id)
             ->will($this->returnValue(['detailsSnippet' => 'testSnippet']));
-        $filterutils = new FilterUtilities($servicemock);
+        $filterutils = new FilterUtilities($servicemock, $utils);
         $this->assertTrue($filterutils->get_html() === 'testSnippet');
     }
 }
