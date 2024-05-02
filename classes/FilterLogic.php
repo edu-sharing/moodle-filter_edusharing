@@ -130,7 +130,11 @@ class FilterLogic {
             trigger_error(get_string('error_loading_node', 'filter_edusharing'), E_USER_WARNING);
             return '';
         }
-        parse_str(parse_url($qs, PHP_URL_QUERY), $params);
+        $queryparams = parse_url($qs, PHP_URL_QUERY);
+        if ($queryparams === null) {
+            return get_string('error_parsing_queryparams');
+        }
+        parse_str($queryparams, $params);
         $edusharing                = $DB->get_record(
             Constants::EDUSHARING_TABLE,
             ['id' => (int)$params['resourceId']],

@@ -34,3 +34,4 @@ $string['error_loading_resource'] = 'Ressource kann nicht aus der Datenbank gela
 $string['error_missing_instance_id'] = 'Ungültige Instanz ID';
 $string['error_empty_object_url'] = 'Ungültige Objekt-URL';
 $string['error_curl'] = '{$a} cURL Fehler: ';
+$string['error_parsing_queryparams'] = 'Fehlendes Edu-Sharing-Objekt. Query-Parameter fehlerhaft oder fehlend.';

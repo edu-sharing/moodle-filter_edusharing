@@ -34,3 +34,4 @@ $string['error_loading_resource'] = 'Cannot load resource from database.';
 $string['error_missing_instance_id'] = 'Invalid instance id';
 $string['error_empty_object_url'] = 'Invalid object url';
 $string['error_curl'] = '{$a} cURL error: ';
+$string['error_parsing_queryparams'] = 'Missing Edu-Sharing object. Query parameters could not be parsed.';
