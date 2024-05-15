@@ -30,6 +30,7 @@ use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
 use mod_edusharing\UtilityFunctions;
 use moodle_exception;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(dirname(__FILE__) . '/../../../mod/edusharing/lib.php');
@@ -104,6 +105,7 @@ class FilterUtilities {
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
+     * @throws Exception
      */
     public function get_html(): string {
         global $DB;
@@ -125,13 +127,24 @@ class FilterUtilities {
         } else {
             throw new EduSharingUserException('edusharing resource id missing in URL or GET');
         }
+        $usageid = $edusharing->usage_id;
+        if (empty($usageid)) {
+            $usagedata = new stdClass();
+            $usagedata->ticket      = $this->service->get_ticket();
+            $usagedata->nodeId      = $query['obj_id'];
+            $usagedata->containerId = (string)$edusharing->course;
+            $usagedata->resourceId  = (string)$edusharing->id;
+            $usageid                = $this->service->get_usage_id($usagedata);
+            $edusharing->usage_id   = $usageid;
+            $DB->update_record('edusharing', $edusharing);
+        }
         $renderparams = ['width' => $query['width'], 'height' => $query['height']];
         $node = $this->service->get_node(new Usage(
             $query['obj_id'],
             $edusharing->object_version === '0' ? null : $edusharing->object_version,
             (string)$edusharing->course,
             (string)$edusharing->id,
-            $edusharing->usage_id
+            $usageid
         ), $renderparams, $this->utils->get_auth_key());
         return $node['detailsSnippet'];
     }
