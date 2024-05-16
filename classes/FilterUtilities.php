@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace filter_edusharing;
 
 use coding_exception;
+use curl;
 use dml_exception;
 use EduSharingApiClient\NodeDeletedException;
 use EduSharingApiClient\Usage;
@@ -129,14 +130,21 @@ class FilterUtilities {
         }
         $usageid = $edusharing->usage_id;
         if (empty($usageid)) {
-            $usagedata = new stdClass();
-            $usagedata->ticket      = $this->service->get_ticket();
-            $usagedata->nodeId      = $query['obj_id'];
-            $usagedata->containerId = (string)$edusharing->course;
-            $usagedata->resourceId  = (string)$edusharing->id;
-            $usageid                = $this->service->get_usage_id($usagedata);
-            $edusharing->usage_id   = $usageid;
-            $DB->update_record('edusharing', $edusharing);
+            try {
+                $usagedata = new stdClass();
+                $usagedata->ticket      = $this->service->get_ticket();
+                $usagedata->nodeId      = $query['obj_id'];
+                $usagedata->containerId = (string)$edusharing->course;
+                $usagedata->resourceId  = (string)$edusharing->id;
+                $usageid                = $this->service->get_usage_id($usagedata);
+                $edusharing->usage_id   = $usageid;
+                $DB->update_record('edusharing', $edusharing);
+            } catch (Exception $exception) {
+                debugging($exception->getMessage());
+            }
+        }
+        if (empty($usageid)) {
+            return $this->get_html_legacy_fallback($resourceid, $url);
         }
         $renderparams = ['width' => $query['width'], 'height' => $query['height']];
         $node = $this->service->get_node(new Usage(
@@ -146,6 +154,71 @@ class FilterUtilities {
             (string)$edusharing->id,
             $usageid
         ), $renderparams, $this->utils->get_auth_key());
-        return $node['detailsSnippet'];
+        return $node['detailsSnippet'] ?? '';
+    }
+
+    /**
+     * Function get_html_legacy_fallback
+     *
+     * Sometimes the old ways are needed...
+     *
+     * @param string $resourceid
+     * @param string $url
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws Exception
+     */
+    private function get_html_legacy_fallback(string $resourceid, string $url): string {
+        global $CFG;
+        require_once($CFG->libdir . '/filelib.php');
+        $parts = parse_url($url);
+        parse_str($parts['query'], $query);
+        $ts = round(microtime(true) * 1000);
+        $url .= '&ts=' . $ts;
+        $url .= '&sig=' . urlencode(
+            $this->service->sign($this->utils->get_config_entry('application_appid') . $ts . $query['obj_id'])
+            );
+        $url .= '&signed=' . urlencode(get_config('edusharing', 'application_appid') . $ts . $query['obj_id']);
+        $url .= '&videoFormat=' . optional_param('videoFormat', '', PARAM_TEXT);
+        $internalurl = $this->utils->get_internal_url();
+        if (!empty($internalurl)) {
+            $url = str_replace(rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/'), $internalurl, $url);
+        }
+        $curl = new curl();
+        $curl->setopt([
+            'CURLOPT_SSL_VERIFYPEER' => false,
+            'CURLOPT_SSL_VERIFYHOST' => false,
+            'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_HEADER' => 0,
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_USERAGENT' => $_SERVER['HTTP_USER_AGENT'],
+        ]);
+        $inline = $curl->get($url);
+        if ($curl->error) {
+            throw new Exception(get_string(
+                'error_curl',
+                'filter_edusharing',
+                $this->utils->get_config_entry('application_appname')) . $curl->error);
+        }
+        $html = str_replace(["\n", "\r", "\n"], '', $inline);
+        $html = str_replace("{{{LMS_INLINE_HELPER_SCRIPT}}}",
+            $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=".sesskey()."&resId=" . $resourceid, $html);
+        $title = optional_param('title', '', PARAM_TEXT);
+        $html = preg_replace(
+            "/<es:title[^>]*>.*<\/es:title>/Uims",
+            mb_convert_encoding($title, 'UTF-8', mb_detect_encoding($title)),
+            $html
+        );
+        if (str_contains($html, 'data-es-auth-required="true"')) {
+            $ticket = $this->service->get_ticket();
+            $html = str_replace('" data-es-auth-required="true"', '&ticket='.$ticket.'"', $html);
+        }
+        $captionparam = optional_param('caption', '', PARAM_TEXT);
+        $caption = mb_convert_encoding($captionparam, 'UTF-8', mb_detect_encoding($captionparam));
+        if ($caption) {
+            $html .= '<p class="caption">' . $caption . '</p>';
+        }
+        return $html;
     }
 }
