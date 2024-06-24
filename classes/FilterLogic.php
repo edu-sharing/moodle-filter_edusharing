@@ -85,15 +85,15 @@ class FilterLogic {
         $memento = $text;
         try {
             $this->service->require_edu_login(checksessionkey: false);
-            $matchesatto = $this->utils->get_inline_object_matches($text);
-            if (!empty($matchesatto)) {
+            $esmatches = $this->utils->get_inline_object_matches($text);
+            if (!empty($esmatches)) {
                 // Disable page-caching to "renew" render-session-data.
                 $PAGE->set_cacheable(false);
                 if (!$edusharingfilterloaded) {
                     $PAGE->requires->js_call_amd('filter_edusharing/edu', 'init');
                     $edusharingfilterloaded = true;
                 }
-                foreach ($matchesatto as $match) {
+                foreach ($esmatches as $match) {
                     $text = str_replace($match, $this->convert_object($match), $text);
                 }
             }
@@ -117,8 +117,14 @@ class FilterLogic {
      */
     private function convert_object(string $object): string {
         global $DB;
+        libxml_use_internal_errors(true);
         $doc = new DOMDocument();
         $doc->loadHTML($object);
+        $errors = libxml_get_errors();
+        if (!empty($errors)) {
+            debugging("Error parsing ES object: " . $object);
+            return '';
+        }
         $node = $doc->getElementsByTagName('a')->item(0);
         if (empty($node)) {
             $node = $doc->getElementsByTagName('img')->item(0);
