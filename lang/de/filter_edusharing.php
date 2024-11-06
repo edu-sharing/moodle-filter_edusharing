@@ -24,14 +24,17 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'edu-sharing Filter';
 $string['filtername'] = 'edu-sharing Filter';
-$string['settingformats'] = 'Aktiv für folgende Textformate';
-$string['settingformats_desc'] = 'Der Filter wird nur angewandt, wenn der Originaltext im entsprechenden Format vorliegt.';
+$string['pluginname'] = 'edu-sharing Filter';
 
+$string['error_curl'] = '{$a} cURL Fehler: ';
+$string['error_empty_object_url'] = 'Ungültige Objekt-URL';
 $string['error_loading_node'] = 'Objekt kann nicht geladen werden.';
 $string['error_loading_resource'] = 'Ressource kann nicht aus der Datenbank geladen werden.';
 $string['error_missing_instance_id'] = 'Ungültige Instanz ID';
-$string['error_empty_object_url'] = 'Ungültige Objekt-URL';
-$string['error_curl'] = '{$a} cURL Fehler: ';
 $string['error_parsing_queryparams'] = 'Fehlendes Edu-Sharing-Objekt. Query-Parameter fehlerhaft oder fehlend.';
+
+$string['settingformats'] = 'Aktiv für folgende Textformate';
+$string['settingformats_desc'] = 'Der Filter wird nur angewandt, wenn der Originaltext im entsprechenden Format vorliegt.';
+
+

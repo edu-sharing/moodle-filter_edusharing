@@ -34,9 +34,10 @@ global $CFG;
 /**
  * Parse content for edu-sharing objects to render them
  *
+ * @author metaVentis GmbH
+ * @package filter_edusharing
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- *
  */
 class text_filter extends moodle_text_filter {
 
