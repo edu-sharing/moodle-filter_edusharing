@@ -14,48 +14,4 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Filter converting edu-sharing URIs in the text to edu-sharing rendering links
- *
- * @package filter_edusharing
- * @copyright metaVentis GmbH — http://metaventis.com
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-use filter_edusharing\FilterLogic;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-/**
- * Parse content for edu-sharing objects to render them
- *
- * @copyright metaVentis GmbH — http://metaventis.com
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- *
- */
-class filter_edusharing extends moodle_text_filter {
-
-    /**
-     * Function filter
-     *
-     * @param string $text to be processed by the text
-     * @param array $options filter options
-     *
-     * @return string text after processing
-     * @see filter_manager::apply_filter_chain()
-     */
-    public function filter($text, array $options = []): string {
-        try {
-            if (empty(get_config('edusharing', 'application_cc_gui_url'))) {
-                return $text;
-            }
-            $logic = new FilterLogic();
-        } catch (Exception $exception) {
-            debugging($exception->getMessage());
-            return $text;
-        }
-        return $logic->apply_filter($text, $options);
-    }
-}
+class_alias(\filter_edusharing\text_filter::class, \filter_edusharing::class);
