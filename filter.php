@@ -14,4 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * filter.php
+ *
+ * @package filter_edusharing
+ * @copyright metaVentis GmbH — http://metaventis.com
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class_alias(\filter_edusharing\text_filter::class, \filter_edusharing::class);
