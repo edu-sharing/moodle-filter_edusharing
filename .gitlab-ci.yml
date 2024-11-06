@@ -36,7 +36,7 @@ test:
     - rm -rf /builds/edu-sharing/community/integration/moodle-plugin-ci-plugins
     # Install Moodle CI plugin.
     - cd $CI_PROJECT_DIR/.. && rm -rf ci
-    - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci 4.4.0
+    - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
     - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
     - chmod u+x ci/bin/moodle-plugin-ci
     - chmod u+x ci/bin/*
