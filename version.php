@@ -23,7 +23,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version      = 2024110600;
+$plugin->version      = 2024110700;
 $plugin->component    = 'filter_edusharing';
 $plugin->dependencies = ['mod_edusharing' => 2024071700];
 $plugin->requires     = 2022112809;
