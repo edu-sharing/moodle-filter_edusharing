@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version of the edu-sharing plugin
+ * Strings for filter_urltolink
  *
  * @package    filter_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
@@ -23,9 +23,18 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version      = 2025010700;
-$plugin->component    = 'filter_edusharing';
-$plugin->dependencies = ['mod_edusharing' => 2024071700];
-$plugin->requires     = 2022112809;
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->release      = '9.0.0';
+
+$string['filtername'] = 'edu-sharing Filtre';
+$string['pluginname'] = 'edu-sharing Filtre';
+
+$string['error_curl'] = '{$a} cURL Erreur: ';
+$string['error_empty_object_url'] = 'URL d\objet non valide';
+$string['error_loading_node'] = 'L\'objet ne peut pas être chargé.';
+$string['error_missing_instance_id'] = 'ID d\'instance non valide';
+$string['error_parsing_queryparams'] = 'Objet edu-sharing manquant. Paramètre de requête erroné ou manquant.';
+
+$string['filtername'] = 'edu-sharing Filtre';
+$string['pluginname'] = 'edu-sharing Filtre';
+
+$string['settingformats'] = 'Actif pour les formats de texte suivants';
+$string['settingformats_desc'] = 'Le filtre est seulement appliqué si le texte original est disponible dans le format correspondant.';
