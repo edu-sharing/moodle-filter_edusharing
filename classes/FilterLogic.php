@@ -79,7 +79,7 @@ class FilterLogic {
      * @return string
      */
     public function apply_filter(string $text, array $options): string {
-        global $PAGE;
+        global $PAGE, $CFG;
         global $edusharingfilterloaded;
         if (!isset($options['originalformat']) || !str_contains($text, 'edusharing_atto')) {
             return $text;
@@ -92,7 +92,9 @@ class FilterLogic {
                 // Disable page-caching to "renew" render-session-data.
                 $PAGE->set_cacheable(false);
                 if (!$edusharingfilterloaded) {
-                    $PAGE->requires->js_call_amd('filter_edusharing/edu', 'init');
+                    $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start');
+                    $PAGE->requires->js_call_amd('esrendering', 'init');
+
                     $edusharingfilterloaded = true;
                 }
                 foreach ($esmatches as $match) {
@@ -193,6 +195,14 @@ class FilterLogic {
         $utils  = new UtilityFunctions();
         $url    = $utils->get_redirect_url($edusharing, Constants::EDUSHARING_DISPLAY_MODE_INLINE);
         $url    .= '&height=' . urlencode($renderparams['height']) . '&width=' . urlencode($renderparams['width']);
+        if  (get_config('filter_edusharing', 'enable_rendering_2' === '1')) {
+            $nodeid = $this->utils->get_object_id_from_url($objecturl);
+            return '<div class="eduContainer" data-type="esObject" data-node="' . $nodeid . '">' .
+                '<div class="edusharing_spinner_inner"><div class="edusharing_spinner1"></div></div>' .
+                '<div class="edusharing_spinner_inner"><div class="edusharing_spinner2"></div></div>' .
+                '<div class="edusharing_spinner_inner"><div class="edusharing_spinner3"></div></div>' .
+                'edu sharing object</div>';
+        }
         $inline = '<div class="eduContainer" data-type="esObject" data-url="' . $CFG->wwwroot .
             '/filter/edusharing/proxy.php?sesskey=' . sesskey() . '&URL=' . urlencode($url) . '&resId=' .
             $edusharing->id . '&title=' . urlencode($renderparams['title']) .

@@ -37,4 +37,7 @@ $string['pluginname'] = 'edu-sharing Filter';
 $string['settingformats'] = 'Apply to formats';
 $string['settingformats_desc'] = 'The filter will be applied only if the original text was inserted in one of the selected formats.';
 
+$string['enable_rendering_2'] = 'Activate Rendering Service 2';
+$string['enable_rendering_2_help'] = 'Rendering Service 2 is used for displaying Edu-Sharing content.';
+
 

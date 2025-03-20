@@ -37,4 +37,7 @@ $string['pluginname'] = 'edu-sharing Filter';
 $string['settingformats'] = 'Aktiv für folgende Textformate';
 $string['settingformats_desc'] = 'Der Filter wird nur angewandt, wenn der Originaltext im entsprechenden Format vorliegt.';
 
+$string['enable_rendering_2'] = 'Rendering Service 2 aktivieren';
+$string['enable_rendering_2_help'] = 'Für die Anzeige von Edu-Sharing-Inhalten wird der Rendering Service 2 genutzt';
+
 

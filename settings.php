@@ -31,4 +31,11 @@ if ($ADMIN->fulltree) {
             get_string('settingformats', 'filter_edusharing'),
             get_string('settingformats_desc', 'filter_edusharing'),
             [FORMAT_MOODLE => 1, FORMAT_HTML => 1], format_text_menu()));
+    $settings->add(
+        new admin_setting_configcheckbox('filter_edusharing/enable_rendering_2',
+            new lang_string('enable_rendering_2', 'filter_edusharing'),
+            new lang_string('enable_rendering_2_help', 'filter_edusharing'),
+            '0'
+        )
+    );
 }

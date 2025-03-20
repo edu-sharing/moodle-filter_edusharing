@@ -130,6 +130,9 @@ class FilterUtilities {
         } else {
             throw new EduSharingUserException('edusharing resource id missing in URL or GET');
         }
+        if (get_config('filter_edusharing', 'enable_rendering_2' === '1')) {
+            return $this->get_html_rendering_2($query['obj_id']);
+        }
         $usageid = $edusharing->usage_id;
         if (empty($usageid)) {
             try {
@@ -222,5 +225,21 @@ class FilterUtilities {
             $html .= '<p class="caption">' . $caption . '</p>';
         }
         return $html;
+    }
+
+    /**
+     * Function get_html_rendering_2
+     *
+     * @throws Exception
+     */
+    private function get_html_rendering_2(string $nodeid): string {
+        try {
+            $rendering2url = $this->service->get_rendering_2_url();
+            $securedNode = $this->service->get_secured_node(nodeid: $nodeid);
+            return '<edu-sharing-render secured_node="' . $securedNode->securedNode . '" jwt="' . $securedNode->jwt . '" . signature="' . $securedNode->signature . '"></edu-sharing-render>';
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+        }
+        return '';
     }
 }

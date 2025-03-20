@@ -18,82 +18,59 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+import {getSecuredNode} from "./repository";
+import Config from 'core/config';
 
-define(['jquery'], function($) {
+export const start = () => {
+    const allEduSharingObjects = document.querySelectorAll("div[data-type='esObject']");
 
-    return {
-        init: function() {
+    const options = {
+        root: null,
+        rootMargin: "400px",
+        threshold: 0
+    };
 
-            // eslint-disable-next-line @babel/no-unused-expressions
-            !(function() {
-                /**
-                 * @param {number} a
-                 * @param {number} b
-                 */
-                function a(a, b) {
-                    var c = void 0 !== window.pageYOffset ? window.pageYOffset : (document.documentElement ||
-                            document.body.parentNode || document.body).scrollTop,
-                        d = document.documentElement.clientHeight,
-                        e = c + d;
-                    b = b || 0;
-                    var f = a.getBoundingClientRect();
-                    if (0 === f.height) {
-                     return !1;
-                    }
-                    var g = f.top + c - b,
-                        h = f.bottom + c + b;
-                    return h > c && e > g;
-                }
-
-                $.expr[":"]["near-viewport"] = function(b, c, d) {
-                    var e = parseInt(d[3]) || 0;
-                    return a(b, e);
-                };
-            }());
-
-            $.ajaxSetup({cache: false});
-
-            var videoFormat = 'webm';
-            var v = document.createElement('video');
-            if (v.canPlayType && v.canPlayType('video/mp4').replace(/no/, '')) {
-                videoFormat = 'mp4';
-            }
-
-            /**
-             * @param {object} esObject
-             * @param {jQuery} wrapper
-             */
-            function renderEsObject(esObject, wrapper) {
-                var url = esObject.attr("data-url") + '&videoFormat=' + videoFormat;
-                if (typeof wrapper == 'undefined') {
-                    var wrapper = esObject.parent();
-                }
-                $.get(url, function(data) {
-                    wrapper.html('').append(data).css({display: 'none', height: 'auto', width: 'auto'}).fadeIn('slow', 'linear');
-                    if (data.toLowerCase().indexOf('data-view="lock"') >= 0) {
-                        setTimeout(function() {
-                            renderEsObject(esObject, wrapper);
-                        }, 1111);
-                    }
-                });
-                esObject.removeAttr("data-type");
-            }
-
-            $("div[data-type='esObject']:near-viewport(400)").each(function() {
-                renderEsObject($(this));
-            });
-
-            // fix in case the theme does scroll via div/local container and not via window viewport
-            setInterval(function() {
-                $("div[data-type='esObject']:near-viewport(400)").each(function() {
-                    renderEsObject($(this));
-                });}, 1000);
-
-            $(window).scroll(function() {
-                $("div[data-type='esObject']:near-viewport(400)").each(function() {
-                    renderEsObject($(this));
-                });
-            });
+    const observerCallback = async(entries, observer) => {
+        for (const entry of entries) {
+            window.console.log(entry.target);
+            await renderObject(entry.target);
+            observer.unobserve(entry.target);
         }
     };
-});
+
+    /**
+     * @param {Element} element
+     */
+    const renderObject = async(element) => {
+        const wrapper = element.parentElement;
+        const nodeId = element.getAttribute('data-node');
+        const ajaxParams = {
+            eduSecuredNodeStructure: {
+                nodeId: nodeId
+            }
+        };
+        const response = await getSecuredNode(ajaxParams).catch(error => {
+            window.console.error(error);
+        });
+
+        const testUser = {
+            authorityName: "authorName",
+            firstName: "Horst",
+            surName: "Tester",
+            userEMail: "mail@mail.de"
+        };
+        const serviceWorkerPhp = `${Config.wwwroot}/filter/edusharing/getServiceWorker.php`;
+        const renderComponent = document.createElement('edu-sharing-render');
+        renderComponent.setAttribute("encoded_node", response.securedNode);
+        renderComponent.setAttribute("signature", response.signature);
+        renderComponent.setAttribute("jwt", response.jwt);
+        renderComponent.setAttribute("render_url", response.renderingBaseUrl);
+        renderComponent.setAttribute("encoded_user", btoa(JSON.stringify(testUser)));
+        renderComponent.setAttribute("service_worker_url", serviceWorkerPhp);
+        wrapper.innerHTML = "";
+        wrapper.appendChild(renderComponent);
+    };
+
+    const observer = new IntersectionObserver(observerCallback, options);
+    allEduSharingObjects.forEach(element => observer.observe(element));
+};
