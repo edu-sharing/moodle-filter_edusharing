@@ -24,20 +24,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['enable_rendering_2'] = 'Activate Rendering Service 2';
+$string['enable_rendering_2_help'] = 'Rendering Service 2 is used for displaying Edu-Sharing content.';
 $string['error_curl'] = '{$a} cURL error: ';
 $string['error_empty_object_url'] = 'Invalid object url';
 $string['error_loading_node'] = 'Error loading object';
 $string['error_loading_resource'] = 'Cannot load resource from database.';
 $string['error_missing_instance_id'] = 'Invalid instance id';
 $string['error_parsing_queryparams'] = 'Missing Edu-Sharing object. Query parameters could not be parsed.';
-
 $string['filtername'] = 'edu-sharing Filter';
 $string['pluginname'] = 'edu-sharing Filter';
-
 $string['settingformats'] = 'Apply to formats';
 $string['settingformats_desc'] = 'The filter will be applied only if the original text was inserted in one of the selected formats.';
-
-$string['enable_rendering_2'] = 'Activate Rendering Service 2';
-$string['enable_rendering_2_help'] = 'Rendering Service 2 is used for displaying Edu-Sharing content.';
-
-

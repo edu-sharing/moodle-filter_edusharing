@@ -28,11 +28,7 @@ $string['error_empty_object_url'] = 'Invalid object url';
 $string['error_loading_node'] = 'Error loading object';
 $string['error_loading_resource'] = 'Cannot load resource from database.';
 $string['error_missing_instance_id'] = 'Invalid instance id';
-
 $string['filtername'] = 'edu-sharing 过滤条件';
 $string['pluginname'] = 'edu-sharing 过滤条件';
-
 $string['settingformats'] = '应用格式';
 $string['settingformats_desc'] = '过滤条件仅在将原始文本插入到选中格式中有效.';
-
-
