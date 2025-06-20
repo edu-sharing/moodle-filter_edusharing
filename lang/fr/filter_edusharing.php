@@ -24,9 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['filtername'] = 'edu-sharing Filtre';
-$string['pluginname'] = 'edu-sharing Filtre';
-
 $string['error_curl'] = '{$a} cURL Erreur: ';
 $string['error_empty_object_url'] = 'URL d\objet non valide';
 $string['error_loading_node'] = 'L\'objet ne peut pas être chargé.';
