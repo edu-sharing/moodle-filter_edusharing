@@ -32,6 +32,16 @@ use mod_edusharing\EduSharingService;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hook_callbacks {
+
+    /**
+     * Function before_http_headers
+     *
+     * Executes operations before HTTP headers are sent, such as injecting required configurations,
+     * verifying database state, and appending necessary stylesheets to the page.
+     *
+     * @param before_http_headers $hook The hook instance associated with the current execution of the hook.
+     * @return void
+     */
     public static function before_http_headers(before_http_headers $hook): void {
         global $DB;
         $tables = $DB->get_tables();
