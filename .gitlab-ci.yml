@@ -15,6 +15,7 @@ variables:
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
   MOODLE_START_BEHAT_SERVERS: "NO"
   IGNORE_PATHS: "mod/edusharing/apiClient"
+  COMPOSER_CACHE_DIR: "/tmp/composer-cache"
 
 test:
 
@@ -28,6 +29,8 @@ test:
     # Install composer.
     - curl -sS https://getcomposer.org/installer | php
     - mv composer.phar /usr/local/bin/composer
+    - mkdir -p /root/.composer
+    - echo '{}' > /root/.composer/composer.json
     # Setup Behat.
     - export IPADDRESS=`grep "$HOSTNAME$" /etc/hosts | awk '{print $1}'`
     - export MOODLE_BEHAT_WWWROOT="http://$IPADDRESS:8000"
