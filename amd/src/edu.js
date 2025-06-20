@@ -74,6 +74,7 @@ export const start = (repoUrl) => {
             });
         }
         const renderComponent = document.createElement('edu-sharing-render');
+        renderComponent.classList.add('edu-sharing-render');
         renderComponent.style.width = width + 'px';
         renderComponent.encoded_node = response.securedNode;
         renderComponent.signature = response.signature;

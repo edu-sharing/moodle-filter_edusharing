@@ -3,13 +3,13 @@
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-edu-sharing-render {
+.edu-sharing-render {
     border-radius: 0 0 1.5em 1.5em;
     background-color: #f8f8f8;
 }
 
-edu-sharing-render .image-wrapper img {
-    border-radius: 1.5em 1.5em 0 0 !important;
+.edu-sharing-render .image-wrapper img {
+    border-radius: 1.5em 1.5em 0 0;
 }
 
 #region-main > div.card {
