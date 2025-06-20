@@ -92,9 +92,13 @@ class FilterLogic {
                 // Disable page-caching to "renew" render-session-data.
                 $PAGE->set_cacheable(false);
                 if (!$edusharingfilterloaded) {
-                    $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start');
-                    $PAGE->requires->js_call_amd('esrendering', 'init');
-
+                    if ($this->service->has_rendering_2()) {
+                        $repoUrl = rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/');
+                        $PAGE->requires->js_call_amd('filter_edusharing/remoteloader', 'init', [$repoUrl]);
+                        $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start', [$repoUrl]);
+                    } else {
+                        $PAGE->requires->js_call_amd('filter_edusharing/eduLegacy', 'init');
+                    }
                     $edusharingfilterloaded = true;
                 }
                 foreach ($esmatches as $match) {
@@ -195,9 +199,16 @@ class FilterLogic {
         $utils  = new UtilityFunctions();
         $url    = $utils->get_redirect_url($edusharing, Constants::EDUSHARING_DISPLAY_MODE_INLINE);
         $url    .= '&height=' . urlencode($renderparams['height']) . '&width=' . urlencode($renderparams['width']);
-        if  (get_config('filter_edusharing', 'enable_rendering_2' === '1')) {
+        if  ($this->service->has_rendering_2()) {
             $nodeid = $this->utils->get_object_id_from_url($objecturl);
-            return '<div class="eduContainer" data-type="esObject" data-node="' . $nodeid . '">' .
+            return '<div class="eduContainer" data-type="esObject" data-node="' . $nodeid .
+                '" data-width="' . urlencode($renderparams['width'] ?? 400) .
+                '" data-height="' . urlencode($renderparams['height'] ?? 300) .
+                '" data-container="' . urlencode($edusharing->course) .
+                '" data-version="' . urlencode($edusharing->object_version) .
+                '" data-resource="' . urlencode($edusharing->id) .
+                '" data-usage="' . urlencode($edusharing->usage_id) .
+                '">' .
                 '<div class="edusharing_spinner_inner"><div class="edusharing_spinner1"></div></div>' .
                 '<div class="edusharing_spinner_inner"><div class="edusharing_spinner2"></div></div>' .
                 '<div class="edusharing_spinner_inner"><div class="edusharing_spinner3"></div></div>' .

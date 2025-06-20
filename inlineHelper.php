@@ -27,7 +27,7 @@ require_once(dirname(__FILE__) . '/../../config.php');
 
 $filterutils = new FilterUtilities();
 try {
-    require_login();
+    require_login((string)optional_param('containerId', '', PARAM_TEXT));
     $redirecturl = $filterutils->get_redirect_url();
     redirect($redirecturl);
 } catch (Exception $exception) {

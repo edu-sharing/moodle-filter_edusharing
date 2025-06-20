@@ -21,7 +21,7 @@
 import {getSecuredNode} from "./repository";
 import Config from 'core/config';
 
-export const start = () => {
+export const start = (repoUrl) => {
     const allEduSharingObjects = document.querySelectorAll("div[data-type='esObject']");
 
     const options = {
@@ -32,7 +32,6 @@ export const start = () => {
 
     const observerCallback = async(entries, observer) => {
         for (const entry of entries) {
-            window.console.log(entry.target);
             await renderObject(entry.target);
             observer.unobserve(entry.target);
         }
@@ -44,6 +43,15 @@ export const start = () => {
     const renderObject = async(element) => {
         const wrapper = element.parentElement;
         const nodeId = element.getAttribute('data-node');
+        const containerId = element.getAttribute('data-container');
+        const version = element.getAttribute('data-version');
+        const usage = element.getAttribute('data-usage');
+        const resourceId = element.getAttribute('data-resource');
+        const width = element.getAttribute('data-width');
+
+        const resourceUrl = `${Config.wwwroot}/filter/edusharing/inlineHelper.php?` +
+            `nodeId=${nodeId}&nodeVersion=${version}&usageId=${usage}&resourceId=${resourceId}&containerId=${containerId}`;
+
         const ajaxParams = {
             eduSecuredNodeStructure: {
                 nodeId: nodeId
@@ -60,15 +68,25 @@ export const start = () => {
             userEMail: "mail@mail.de"
         };
         const serviceWorkerPhp = `${Config.wwwroot}/filter/edusharing/getServiceWorker.php`;
+        if ('serviceWorker' in navigator) {
+            await navigator.serviceWorker.register(serviceWorkerPhp, {
+                scope: '/'
+            });
+        }
         const renderComponent = document.createElement('edu-sharing-render');
-        renderComponent.setAttribute("encoded_node", response.securedNode);
-        renderComponent.setAttribute("signature", response.signature);
-        renderComponent.setAttribute("jwt", response.jwt);
-        renderComponent.setAttribute("render_url", response.renderingBaseUrl);
-        renderComponent.setAttribute("encoded_user", btoa(JSON.stringify(testUser)));
-        renderComponent.setAttribute("service_worker_url", serviceWorkerPhp);
+        renderComponent.style.width = width + 'px';
+        renderComponent.encoded_node = response.securedNode;
+        renderComponent.signature = response.signature;
+        renderComponent.jwt = response.jwt;
+        renderComponent.render_url = response.renderingBaseUrl;
+        renderComponent.encoded_user = btoa(JSON.stringify(testUser));
+        renderComponent.service_worker_url = serviceWorkerPhp;
+        renderComponent.activate_service_worker = false;
+        renderComponent.assets_url = repoUrl + '/web-components/rendering-service-amd/assets';
+        renderComponent.resource_url = resourceUrl;
         wrapper.innerHTML = "";
         wrapper.appendChild(renderComponent);
+        window.console.log("resurl: " + resourceUrl);
     };
 
     const observer = new IntersectionObserver(observerCallback, options);

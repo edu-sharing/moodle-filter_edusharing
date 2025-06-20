@@ -26,12 +26,12 @@ use filter_edusharing\FilterUtilities;
 
 require_once(dirname(__FILE__) . '/../../config.php');
 
-$filterutils = new FilterUtilities();
-try {
-    require_login();
-    echo $filterutils->get_html();
-} catch (Exception $exception) {
-    echo 'Error';
-    debugging($exception->getMessage());
-}
 
+    $filterutils = new FilterUtilities();
+    try {
+        require_login();
+        echo $filterutils->get_html();
+    } catch (Exception $exception) {
+        echo 'Error';
+        debugging($exception->getMessage());
+    }
