@@ -53,12 +53,12 @@ function filter_edusharing_before_http_headers() {
     global $PAGE;
     if ($PAGE->cm || $PAGE->course || $PAGE->pagelayout !== 'popup') {
         try {
-            $repoUrl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/');
+            $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/');
             $PAGE->requires->js_init_code("
                 (function() {
                     var link = document.createElement('link');
                     link.rel = 'stylesheet';
-                    link.href = '$repoUrl/web-components/rendering-service-amd/styles.css';
+                    link.href = '$repourl/web-components/rendering-service-amd/styles.css';
                     document.head.appendChild(link);
                 })();
             ");

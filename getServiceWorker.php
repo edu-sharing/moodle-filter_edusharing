@@ -24,12 +24,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->libdir . '/filelib.php');
-
-require_once(dirname(__FILE__) . '/../../config.php');
 
 header('Content-Type: text/javascript');
 header('Service-Worker-Allowed: /');

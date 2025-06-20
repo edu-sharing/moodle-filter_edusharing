@@ -199,7 +199,7 @@ class FilterLogic {
         $utils  = new UtilityFunctions();
         $url    = $utils->get_redirect_url($edusharing, Constants::EDUSHARING_DISPLAY_MODE_INLINE);
         $url    .= '&height=' . urlencode($renderparams['height']) . '&width=' . urlencode($renderparams['width']);
-        if  ($this->service->has_rendering_2()) {
+        if ($this->service->has_rendering_2()) {
             $nodeid = $this->utils->get_object_id_from_url($objecturl);
             return '<div class="eduContainer" data-type="esObject" data-node="' . $nodeid .
                 '" data-width="' . urlencode($renderparams['width'] ?? 400) .
