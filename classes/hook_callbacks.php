@@ -47,10 +47,10 @@ class hook_callbacks {
             return;
         }
         try {
-            $repoUrl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/');
+            $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/');
         } catch (Exception $exception) {
             mtrace($exception);
-            $repoUrl = '';
+            $repourl = '';
         }
         global $PAGE;
         if ($PAGE->cm || $PAGE->course || $PAGE->pagelayout !== 'popup') {
@@ -58,7 +58,7 @@ class hook_callbacks {
                 (function() {
                     var link = document.createElement('link');
                     link.rel = 'stylesheet';
-                    link.href = '$repoUrl/web-components/rendering-service-amd/styles.css';
+                    link.href = '$repourl/web-components/rendering-service-amd/styles.css';
                     document.head.appendChild(link);
                 })();
             ");

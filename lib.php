@@ -17,8 +17,6 @@
 use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * lib
  *
@@ -27,6 +25,16 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Function filter_edusharing_before_http_headers
+ *
+ * Prepares and injects necessary EduSharing rendering service CSS into the page's HTTP headers.
+ * This function ensures that the required tables, internal URLs, and rendering service 2 are available
+ * before injecting the CSS file for the rendering service. It attaches the CSS file only if the
+ * page context is appropriate (excluding popups).
+ *
+ * @return void
+ */
 function filter_edusharing_before_http_headers() {
     global $DB;
     $tables = $DB->get_tables();

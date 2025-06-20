@@ -19,7 +19,7 @@
  *
  * Proxy for service worker
  *
- * @package    mod_edusharing
+ * @package    filter_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,11 +29,14 @@ global $CFG;
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->libdir . '/filelib.php');
 
+require_once(dirname(__FILE__) . '/../../config.php');
+
 header('Content-Type: text/javascript');
 header('Service-Worker-Allowed: /');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
 try {
+    require_login();
     $repositoryurl = rtrim(get_config('edusharing', 'application_docker_network_url'), '/');
     if (empty($repositoryurl)) {
         $repositoryurl = rtrim(get_config('edusharing', 'application_cc_gui_url'), '/');

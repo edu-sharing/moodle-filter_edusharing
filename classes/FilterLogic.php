@@ -93,9 +93,9 @@ class FilterLogic {
                 $PAGE->set_cacheable(false);
                 if (!$edusharingfilterloaded) {
                     if ($this->service->has_rendering_2()) {
-                        $repoUrl = rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/');
-                        $PAGE->requires->js_call_amd('filter_edusharing/remoteloader', 'init', [$repoUrl]);
-                        $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start', [$repoUrl]);
+                        $repourl = rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/');
+                        $PAGE->requires->js_call_amd('filter_edusharing/remoteloader', 'init', [$repourl]);
+                        $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start', [$repourl]);
                     } else {
                         $PAGE->requires->js_call_amd('filter_edusharing/eduLegacy', 'init');
                     }
