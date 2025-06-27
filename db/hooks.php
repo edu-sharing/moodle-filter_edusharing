@@ -22,10 +22,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $callbacks = [
     [
         'hook' => \core\hook\output\before_http_headers::class,
         'callback' => [\filter_edusharing\hook_callbacks::class,'before_http_headers'],
         'priority' => 500,
-    ]
+    ],
 ];
