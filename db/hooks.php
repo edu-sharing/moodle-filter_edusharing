@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $callbacks = [
     [
         'hook' => \core\hook\output\before_http_headers::class,
-        'callback' => [\filter_edusharing\hook_callbacks::class,'before_http_headers'],
+        'callback' => [\filter_edusharing\hook_callbacks::class, 'before_http_headers'],
         'priority' => 500,
     ],
 ];
