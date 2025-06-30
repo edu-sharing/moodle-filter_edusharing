@@ -45,7 +45,6 @@ use testUtils\FakeConfig;
  * @package    filter_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers \filter_edusharing\FilterUtilities
  */
 final class filter_utilities_test extends advanced_testcase {
     /**
@@ -76,7 +75,7 @@ final class filter_utilities_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('get_redirect_url')
             ->with($eduusage, $user->username)
-            ->will($this->returnValue('www.url.de'));
+            ->willReturn('www.url.de');
         $_POST['nodeId']      = 'node123';
         $_POST['nodeVersion'] = '1.2';
         $_POST['containerId'] = 1;
@@ -120,7 +119,7 @@ final class filter_utilities_test extends advanced_testcase {
         $dbmock->expects($this->once())
             ->method('get_record')
             ->with('edusharing', ['id' => 1], '*', MUST_EXIST)
-            ->will($this->returnValue($edureturn));
+            ->willReturn($edureturn);
         // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $basehelper    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
@@ -139,7 +138,7 @@ final class filter_utilities_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('get_node')
             ->with($eduusage, $edurenderparams, $user->id)
-            ->will($this->returnValue(['detailsSnippet' => 'testSnippet']));
+            ->willReturn(['detailsSnippet' => 'testSnippet']);
         $filterutils = new FilterUtilities($servicemock, $utils);
         $this->assertTrue($filterutils->get_html() === 'testSnippet');
     }
