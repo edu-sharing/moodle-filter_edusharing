@@ -162,7 +162,7 @@ class FilterLogic {
         $renderparams['title']     = $node->getAttribute('title');
         $renderparams['mimetype']  = $params['mimetype'];
         $renderparams['mediatype'] = $params['mediatype'];
-        $renderparams['caption']   = $params['caption'];
+        $renderparams['caption']   = $params['caption'] ?? '';
         $converted                 = $this->render_inline($edusharing, $renderparams);
         $wrapperattributes[]       = 'id="' . $params['resourceId'] . '"';
         $wrapperattributes[]       = 'class="edu_wrapper"';
