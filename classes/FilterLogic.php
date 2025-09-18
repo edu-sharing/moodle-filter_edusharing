@@ -214,7 +214,7 @@ class FilterLogic {
                 '<div class="edusharing_spinner_inner"><div class="edusharing_spinner3"></div></div>' .
                 'edu sharing object</div>';
         }
-        $inline = '<div class="eduContainer" data-type="esObject" data-url="' . $CFG->wwwroot .
+        return '<div class="eduContainer" data-type="esObject" data-url="' . $CFG->wwwroot .
             '/filter/edusharing/proxy.php?sesskey=' . sesskey() . '&URL=' . urlencode($url) . '&resId=' .
             $edusharing->id . '&title=' . urlencode($renderparams['title']) .
             '&mimetype=' . urlencode($renderparams['mimetype']) .
@@ -225,10 +225,5 @@ class FilterLogic {
             '<div class="edusharing_spinner_inner"><div class="edusharing_spinner2"></div></div>' .
             '<div class="edusharing_spinner_inner"><div class="edusharing_spinner3"></div></div>' .
             'edu sharing object</div>';
-        // Amd-js is not being loaded in format_tiles-plugin, so we add it here.
-        if ($COURSE->format == 'tiles') {
-            $inline .= '<script src="' . $CFG->wwwroot . '/filter/edusharing/fallback.js"></script>';
-        }
-        return $inline;
     }
 }
