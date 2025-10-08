@@ -18,7 +18,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {getSecuredNode} from "./repository";
+import {getSecuredNode} from './repository';
+import {getCurrentUser} from './repository';
 import Config from 'core/config';
 
 export const start = (repoUrl) => {
@@ -42,30 +43,44 @@ export const start = (repoUrl) => {
      */
     const renderObject = async(element) => {
         const wrapper = element.parentElement;
+        const width = element.getAttribute('data-width');
         const nodeId = element.getAttribute('data-node');
         const containerId = element.getAttribute('data-container');
         const version = element.getAttribute('data-version');
         const usage = element.getAttribute('data-usage');
         const resourceId = element.getAttribute('data-resource');
-        const width = element.getAttribute('data-width');
 
         const resourceUrl = `${Config.wwwroot}/filter/edusharing/inlineHelper.php?` +
             `nodeId=${nodeId}&nodeVersion=${version}&usageId=${usage}&resourceId=${resourceId}&containerId=${containerId}`;
 
         const ajaxParams = {
             eduSecuredNodeStructure: {
-                nodeId: nodeId
+                nodeId: nodeId,
+                resourceId: resourceId,
             }
         };
+
         const response = await getSecuredNode(ajaxParams).catch(error => {
             window.console.error(error);
         });
 
-        const testUser = {
-            authorityName: "authorName",
-            firstName: "Horst",
-            surName: "Tester",
-            userEMail: "mail@mail.de"
+        const customWidth = response.customWidth;
+        if (customWidth) {
+            if (customWidth !== 'none') {
+                wrapper.style.width = customWidth;
+            }
+        } else {
+            wrapper.style.width = width ? (width + "px") : '';
+        }
+        const moodleUser = await getCurrentUser().catch(error => {
+            window.console.error(error);
+        });
+
+        const eduUser = {
+            authorityName: moodleUser.username,
+            firstName: moodleUser.firstname,
+            surName: moodleUser.lastname,
+            userEMail: moodleUser.email
         };
         const serviceWorkerPhp = `${Config.wwwroot}/filter/edusharing/getServiceWorker.php`;
         if ('serviceWorker' in navigator) {
@@ -73,21 +88,21 @@ export const start = (repoUrl) => {
                 scope: '/'
             });
         }
+
         const renderComponent = document.createElement('edu-sharing-render');
         renderComponent.classList.add('edu-sharing-render');
-        renderComponent.style.width = width + 'px';
         renderComponent.encoded_node = response.securedNode;
         renderComponent.signature = response.signature;
         renderComponent.jwt = response.jwt;
         renderComponent.render_url = response.renderingBaseUrl;
-        renderComponent.encoded_user = btoa(JSON.stringify(testUser));
+        renderComponent.encoded_user = btoa(JSON.stringify(eduUser));
         renderComponent.service_worker_url = serviceWorkerPhp;
         renderComponent.activate_service_worker = false;
         renderComponent.assets_url = repoUrl + '/web-components/rendering-service-amd/assets';
         renderComponent.resource_url = resourceUrl;
+        renderComponent.preview_url = response.previewUrl;
         wrapper.innerHTML = "";
         wrapper.appendChild(renderComponent);
-        window.console.log("resurl: " + resourceUrl);
     };
 
     const observer = new IntersectionObserver(observerCallback, options);

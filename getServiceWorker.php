@@ -24,8 +24,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 global $CFG;
 
 require_once(dirname(__FILE__) . '/../../config.php');
@@ -36,7 +34,6 @@ header('Service-Worker-Allowed: /');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
 try {
-    require_login();
     $repositoryurl = rtrim(get_config('edusharing', 'application_docker_network_url'), '/');
     if (empty($repositoryurl)) {
         $repositoryurl = rtrim(get_config('edusharing', 'application_cc_gui_url'), '/');
