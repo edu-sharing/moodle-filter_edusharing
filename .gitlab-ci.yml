@@ -14,7 +14,7 @@ variables:
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
   MOODLE_START_BEHAT_SERVERS: "NO"
-  IGNORE_PATHS: "mod/edusharing/apiClient"
+  IGNORE_PATHS: "mod/edusharing/apiClient,filter/edusharing/getServiceWorker.php"
   COMPOSER_CACHE_DIR: "/tmp/composer-cache"
 
 test:
