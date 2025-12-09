@@ -40,7 +40,6 @@ global $CFG;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class text_filter extends moodle_text_filter {
-
     /**
      * Function filter
      *

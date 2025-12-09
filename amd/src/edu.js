@@ -43,6 +43,9 @@ export const start = (repoUrl) => {
      */
     const renderObject = async(element) => {
         const wrapper = element.parentElement;
+        if (!wrapper) {
+            return;
+        }
         const width = element.getAttribute('data-width');
         const nodeId = element.getAttribute('data-node');
         const containerId = element.getAttribute('data-container');
@@ -57,6 +60,7 @@ export const start = (repoUrl) => {
             eduSecuredNodeStructure: {
                 nodeId: nodeId,
                 resourceId: resourceId,
+                version: version,
             }
         };
 
@@ -87,6 +91,7 @@ export const start = (repoUrl) => {
             await navigator.serviceWorker.register(serviceWorkerPhp, {
                 scope: '/'
             });
+            await navigator.serviceWorker.ready;
         }
 
         const renderComponent = document.createElement('edu-sharing-render');

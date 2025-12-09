@@ -36,6 +36,7 @@ use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
 use mod_edusharing\UtilityFunctions;
 use moodle_exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use stdClass;
 use testUtils\FakeConfig;
 
@@ -46,6 +47,7 @@ use testUtils\FakeConfig;
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\filter_edusharing\FilterUtilities::class)]
 final class filter_utilities_test extends advanced_testcase {
     /**
      * Function test_get_redirect_url_does_not_set_child_object_in_url_if_none_is_given

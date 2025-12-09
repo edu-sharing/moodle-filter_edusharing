@@ -39,7 +39,7 @@ class FilterLogic {
     /**
      * @var UtilityFunctions|null
      */
-    private ?UtilityFunctions  $utils;
+    private ?UtilityFunctions $utils;
     /**
      * @var EduSharingService|null
      */

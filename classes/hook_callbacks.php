@@ -32,7 +32,6 @@ use mod_edusharing\EduSharingService;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hook_callbacks {
-
     /**
      * Function before_http_headers
      *

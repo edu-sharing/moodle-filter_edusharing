@@ -52,7 +52,7 @@ class FilterUtilities {
     /**
      * @var UtilityFunctions|null
      */
-    private ?UtilityFunctions  $utils;
+    private ?UtilityFunctions $utils;
 
     /**
      * FilterUtilities constructor
@@ -178,9 +178,8 @@ class FilterUtilities {
         parse_str($parts['query'], $query);
         $ts = round(microtime(true) * 1000);
         $url .= '&ts=' . $ts;
-        $url .= '&sig=' . urlencode(
-            $this->service->sign($this->utils->get_config_entry('application_appid') . $ts . $query['obj_id'])
-            );
+        $signature = $this->service->sign($this->utils->get_config_entry('application_appid') . $ts . $query['obj_id']);
+        $url .= '&sig=' . urlencode($signature);
         $url .= '&signed=' . urlencode(get_config('edusharing', 'application_appid') . $ts . $query['obj_id']);
         $url .= '&videoFormat=' . optional_param('videoFormat', '', PARAM_TEXT);
         $internalurl = $this->utils->get_internal_url();
@@ -198,14 +197,19 @@ class FilterUtilities {
         ]);
         $inline = $curl->get($url);
         if ($curl->error) {
-            throw new Exception(get_string(
+            $translation = get_string(
                 'error_curl',
                 'filter_edusharing',
-                $this->utils->get_config_entry('application_appname')) . $curl->error);
+                $this->utils->get_config_entry('application_appname')
+            );
+            throw new Exception($translation . $curl->error);
         }
         $html = str_replace(["\n", "\r", "\n"], '', $inline);
-        $html = str_replace("{{{LMS_INLINE_HELPER_SCRIPT}}}",
-            $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=".sesskey()."&resId=" . $resourceid, $html);
+        $html = str_replace(
+            "{{{LMS_INLINE_HELPER_SCRIPT}}}",
+            $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=" . sesskey() . "&resId=" . $resourceid,
+            $html
+        );
         $title = optional_param('title', '', PARAM_TEXT);
         $html = preg_replace(
             "/<es:title[^>]*>.*<\/es:title>/Uims",
@@ -214,7 +218,7 @@ class FilterUtilities {
         );
         if (str_contains($html, 'data-es-auth-required="true"')) {
             $ticket = $this->service->get_ticket();
-            $html = str_replace('" data-es-auth-required="true"', '&ticket='.$ticket.'"', $html);
+            $html = str_replace('" data-es-auth-required="true"', '&ticket=' . $ticket . '"', $html);
         }
         $captionparam = optional_param('caption', '', PARAM_TEXT);
         $caption = mb_convert_encoding($captionparam, 'UTF-8', mb_detect_encoding($captionparam));
