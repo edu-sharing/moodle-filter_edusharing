@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [10.1.2] - 2026-01-26
+
+## Fixed
+
+- Link to Edu-Sharing repository now uses the rendering proxy
+
+## Changed
+
+- Plugin now requires Moodle 4.5.0 or higher
+
 ### [10.1.1] - 2025-12-09
 
 ## Added
