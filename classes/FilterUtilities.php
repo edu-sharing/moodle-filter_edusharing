@@ -21,6 +21,7 @@ namespace filter_edusharing;
 use coding_exception;
 use curl;
 use dml_exception;
+use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\NodeDeletedException;
 use EduSharingApiClient\Usage;
 use EduSharingApiClient\UsageDeletedException;
@@ -89,13 +90,23 @@ class FilterUtilities {
      * @throws Exception
      */
     public function get_redirect_url(): string {
-        return $this->service->get_redirect_url(new Usage(
-            (string)optional_param('nodeId', null, PARAM_TEXT),
-            optional_param('nodeVersion', null, PARAM_TEXT),
-            (string)optional_param('containerId', null, PARAM_TEXT),
-            (string)optional_param('resourceId', null, PARAM_TEXT),
-            (string)optional_param('usageId', null, PARAM_TEXT)
-        ), $this->utils->get_auth_key());
+        global $DB, $CFG;
+        $edusharing = $DB->get_record(Constants::EDUSHARING_TABLE, ['id' => optional_param('resourceId', null, PARAM_INT)], '*', MUST_EXIST);
+        $redirecturl = $this->utils->get_redirect_url($edusharing);
+        $ts          = round(microtime(true) * 1000);
+        $redirecturl .= '&ts=' . $ts;
+        $data        = get_config('edusharing', 'application_appid') . $ts . $this->utils->get_object_id_from_url($edusharing->object_url);
+        $basehelper  = new EduSharingHelperBase(
+            baseUrl: get_config('edusharing', 'application_cc_gui_url'),
+            privateKey: get_config('edusharing', 'application_private_key'),
+            appId: get_config('edusharing', 'application_appid')
+        );
+        $redirecturl .= '&sig=' . urlencode($basehelper->sign($data));
+        $redirecturl .= '&signed=' . urlencode($data);
+        $redirecturl .= '&backLink=' . urlencode($CFG->wwwroot . '/course/view.php?id=' . optional_param('containerId', null, PARAM_TEXT));
+        $ticket = $this->service->get_ticket();
+        $redirecturl .= '&ticket=' . urlencode(base64_encode($this->utils->encrypt_with_repo_key($ticket)));
+        return $redirecturl;
     }
 
     /**
