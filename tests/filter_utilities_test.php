@@ -57,34 +57,127 @@ final class filter_utilities_test extends advanced_testcase {
      * @throws moodle_exception
      * @throws EduSharingUserException
      */
-    public function test_get_redirect_url_returns_return_value_of_service_method(): void {
-        $this->resetAfterTest();
+    public function test_get_redirect_url_returns_returns_proper_url(): void {
         global $CFG;
-        require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
         require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
+        require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
+
         $this->resetAfterTest();
-        $user = $this->getDataGenerator()->create_user();
-        $this->setUser($user);
-        $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authhelper  = new EduSharingAuthHelper($basehelper);
-        $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
-        $eduusage    = new Usage('node123', '1.2', '1', '2', 'usage123');
-        $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->setConstructorArgs([$authhelper, $nodehelper])
-            ->onlyMethods(['get_redirect_url'])
+
+        // Arrange
+        $_POST['resourceId'] = 1;
+        $edureturn                 = new stdClass();
+        $edureturn->object_version = '0';
+        $edureturn->course = 1;
+        $edureturn->id = 4;
+        $edureturn->usage_id = 'abc123';
+        $edureturn->object_url = 'someTestUrl';
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
+            ->onlyMethods(['get_record'])
             ->getMock();
+        $dbmock->expects($this->once())
+            ->method('get_record')
+            ->with('edusharing', ['id' => 1], '*', MUST_EXIST)
+            ->willReturn($edureturn);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
+        $GLOBALS['DB'] = $dbmock;
+        $basehelper    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig    = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper    = new EduSharingAuthHelper($basehelper);
+        $nodehelper    = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $fakeconfig    = new FakeConfig();
+        $fakeconfig->set_entries([
+            'EDU_AUTH_KEY' => 'id',
+        ]);
+        $utils       = new UtilityFunctions($fakeconfig);
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->setConstructorArgs([$authhelper, $nodehelper, $utils])
+            ->onlyMethods(['sign', 'get_ticket'])
+            ->getMock();
+        $captured = [];
         $servicemock->expects($this->once())
+            ->method('sign')
+            ->willReturnCallback(function (string $data) use (&$captured): string {
+                $captured[] = $data;
+                return 'dummy-signature';
+            });
+        $servicemock->expects($this->once())
+            ->method('get_ticket')
+            ->willReturn('ticket123');
+
+        $utilsmock = $this->getMockBuilder(UtilityFunctions::class)
+            ->setConstructorArgs([$fakeconfig])
+            ->onlyMethods(['get_redirect_url', 'get_object_id_from_url', 'encrypt_with_repo_key', 'get_config_entry'])
+            ->getMock();
+        $utilsmock->expects($this->once())
             ->method('get_redirect_url')
-            ->with($eduusage, $user->username)
-            ->willReturn('www.url.de');
-        $_POST['nodeId']      = 'node123';
-        $_POST['nodeVersion'] = '1.2';
-        $_POST['containerId'] = 1;
-        $_POST['resourceId']  = 2;
-        $_POST['usageId']     = 'usage123';
-        $filterutils          = new FilterUtilities($servicemock);
-        $this->assertTrue($filterutils->get_redirect_url() === 'www.url.de');
+            ->willReturn('https://www.testurl.de?param=test');
+        $utilsmock->expects($this->once())
+            ->method('get_config_entry')
+            ->with('application_appid')
+            ->willReturn('appid123');
+        $utilsmock->expects($this->once())
+            ->method('get_object_id_from_url')
+            ->with('someTestUrl')
+            ->willReturn('nodeid123');
+        $utilsmock->expects($this->once())
+            ->method('encrypt_with_repo_key')
+            ->with('ticket123')
+            ->willReturn('dummy-encrypted-ticket');
+
+        // Act
+        $filterutils = new FilterUtilities($servicemock, $utilsmock);
+        $result = $filterutils->get_redirect_url();
+        
+        // Assert
+        $this->assertCount(1, $captured);
+        $this->assertStringStartsWith('appid123', $captured[0]);
+        $this->assertStringEndsWith('nodeid123', $captured[0]);
+
+        $signeddata   = $captured[0];
+        $timestampstr = substr($signeddata, strlen('appid123'), strlen($signeddata) - strlen('appid123') - strlen('nodeid123'));
+        $this->assertIsNumeric($timestampstr, 'Extracted timestamp should be numeric');
+        $timestamp        = (int)$timestampstr;
+        $currenttimestamp = round(microtime(true) * 1000);
+        $timedifference   = abs($currenttimestamp - $timestamp);
+        $this->assertLessThan(5000, $timedifference, 'Timestamp should be within 5 seconds of current time');
+
+        // Parse the URL
+        $parsedurl = parse_url($result);
+        $this->assertIsArray($parsedurl, 'URL should be parseable');
+
+        // Verify URL components
+        $this->assertEquals('https', $parsedurl['scheme'], 'URL scheme should be https');
+        $this->assertEquals('www.testurl.de', $parsedurl['host'], 'URL host should be www.testurl.de');
+
+        // Parse query parameters
+        $queryparams = [];
+        if (isset($parsedurl['query'])) {
+            parse_str($parsedurl['query'], $queryparams);
+        }
+
+        // Verify required parameters exist
+        $this->assertArrayHasKey('ts', $queryparams, 'URL should contain ts parameter');
+        $this->assertArrayHasKey('sig', $queryparams, 'URL should contain sig parameter');
+        $this->assertArrayHasKey('signed', $queryparams, 'URL should contain signed parameter');
+        $this->assertArrayHasKey('ticket', $queryparams, 'URL should contain ticket parameter');
+
+        // Verify ts parameter
+        $this->assertIsNumeric($queryparams['ts'], 'ts parameter should be numeric');
+        $urlts            = (int)$queryparams['ts'];
+        $tstimedifference = abs($currenttimestamp - $urlts);
+        $this->assertLessThan(5000, $tstimedifference, 'ts parameter should be within 5 seconds of current time');
+
+        // Verify sig parameter
+        $this->assertEquals('dummy-signature', $queryparams['sig'], 'sig parameter should match expected signature');
+
+        // Verify signed parameter
+        $this->assertStringStartsWith('appid123', $queryparams['signed'], 'signed parameter should start with appid');
+        $this->assertStringEndsWith('nodeid123', $queryparams['signed'], 'signed parameter should end with nodeid');
+
+        // Verify ticket parameter exists (encrypted value)
+        $this->assertNotEmpty($queryparams['ticket'], 'ticket parameter should not be empty');
     }
 
     /**

@@ -61,7 +61,10 @@ class FilterUtilities {
      * @param EduSharingService|null $service
      * @param UtilityFunctions|null $utils
      */
-    public function __construct(?EduSharingService $service = null, ?UtilityFunctions $utils = null) {
+    public function __construct(
+        ?EduSharingService $service = null,
+        ?UtilityFunctions $utils = null,
+    ) {
         $this->service = $service;
         $this->utils   = $utils;
         $this->init();
@@ -95,13 +98,8 @@ class FilterUtilities {
         $redirecturl = $this->utils->get_redirect_url($edusharing);
         $ts          = round(microtime(true) * 1000);
         $redirecturl .= '&ts=' . $ts;
-        $data        = get_config('edusharing', 'application_appid') . $ts . $this->utils->get_object_id_from_url($edusharing->object_url);
-        $basehelper  = new EduSharingHelperBase(
-            baseUrl: get_config('edusharing', 'application_cc_gui_url'),
-            privateKey: get_config('edusharing', 'application_private_key'),
-            appId: get_config('edusharing', 'application_appid')
-        );
-        $redirecturl .= '&sig=' . urlencode($basehelper->sign($data));
+        $data        = $this->utils->get_config_entry('application_appid') . $ts . $this->utils->get_object_id_from_url($edusharing->object_url);
+        $redirecturl .= '&sig=' . urlencode($this->service->sign($data));
         $redirecturl .= '&signed=' . urlencode($data);
         $redirecturl .= '&backLink=' . urlencode($CFG->wwwroot . '/course/view.php?id=' . optional_param('containerId', null, PARAM_TEXT));
         $ticket = $this->service->get_ticket();
