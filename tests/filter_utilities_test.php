@@ -65,7 +65,7 @@ final class filter_utilities_test extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        // Arrange
+        // Arrange.
         $_POST['resourceId'] = 1;
         $edureturn                 = new stdClass();
         $edureturn->object_version = '0';
@@ -126,11 +126,10 @@ final class filter_utilities_test extends advanced_testcase {
             ->with('ticket123')
             ->willReturn('dummy-encrypted-ticket');
 
-        // Act
+        // Act.
         $filterutils = new FilterUtilities($servicemock, $utilsmock);
         $result = $filterutils->get_redirect_url();
-        
-        // Assert
+        // Assert.
         $this->assertCount(1, $captured);
         $this->assertStringStartsWith('appid123', $captured[0]);
         $this->assertStringEndsWith('nodeid123', $captured[0]);
@@ -143,40 +142,40 @@ final class filter_utilities_test extends advanced_testcase {
         $timedifference   = abs($currenttimestamp - $timestamp);
         $this->assertLessThan(5000, $timedifference, 'Timestamp should be within 5 seconds of current time');
 
-        // Parse the URL
+        // Parse the URL.
         $parsedurl = parse_url($result);
         $this->assertIsArray($parsedurl, 'URL should be parseable');
 
-        // Verify URL components
+        // Verify URL components.
         $this->assertEquals('https', $parsedurl['scheme'], 'URL scheme should be https');
         $this->assertEquals('www.testurl.de', $parsedurl['host'], 'URL host should be www.testurl.de');
 
-        // Parse query parameters
+        // Parse query parameters.
         $queryparams = [];
         if (isset($parsedurl['query'])) {
             parse_str($parsedurl['query'], $queryparams);
         }
 
-        // Verify required parameters exist
+        // Verify required parameters exist.
         $this->assertArrayHasKey('ts', $queryparams, 'URL should contain ts parameter');
         $this->assertArrayHasKey('sig', $queryparams, 'URL should contain sig parameter');
         $this->assertArrayHasKey('signed', $queryparams, 'URL should contain signed parameter');
         $this->assertArrayHasKey('ticket', $queryparams, 'URL should contain ticket parameter');
 
-        // Verify ts parameter
+        // Verify ts parameter.
         $this->assertIsNumeric($queryparams['ts'], 'ts parameter should be numeric');
         $urlts            = (int)$queryparams['ts'];
         $tstimedifference = abs($currenttimestamp - $urlts);
         $this->assertLessThan(5000, $tstimedifference, 'ts parameter should be within 5 seconds of current time');
 
-        // Verify sig parameter
+        // Verify sig .
         $this->assertEquals('dummy-signature', $queryparams['sig'], 'sig parameter should match expected signature');
 
-        // Verify signed parameter
+        // Verify signed parameter.
         $this->assertStringStartsWith('appid123', $queryparams['signed'], 'signed parameter should start with appid');
         $this->assertStringEndsWith('nodeid123', $queryparams['signed'], 'signed parameter should end with nodeid');
 
-        // Verify ticket parameter exists (encrypted value)
+        // Verify ticket parameter exists (encrypted value).
         $this->assertNotEmpty($queryparams['ticket'], 'ticket parameter should not be empty');
     }
 
