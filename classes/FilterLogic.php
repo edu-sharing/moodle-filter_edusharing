@@ -77,31 +77,43 @@ class FilterLogic {
      * @param string $text
      * @param array $options
      * @return string
+     * @throws dml_exception
      */
     public function apply_filter(string $text, array $options): string {
-        global $PAGE, $CFG;
+        global $PAGE;
         global $edusharingfilterloaded;
-        if (!isset($options['originalformat']) || !str_contains($text, 'edusharing_atto')) {
+        $applyfilter = str_contains($text, 'edusharing_atto') || str_contains($text, 'edusharing-widget-placeholder');
+        if (!isset($options['originalformat']) || !$applyfilter) {
+            error_log('widget found: ' . $text);
             return $text;
         }
+        error_log('widget found: ' . $text);
+        $repourl = rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/');
         $memento = $text;
         try {
             $this->service->require_edu_login(checksessionkey: false);
             $esmatches = $this->utils->get_inline_object_matches($text);
-            if (!empty($esmatches)) {
+            $rendermatches = $esmatches['rendermatches'];
+            $eduwidgetmatches = $esmatches['widgetmatches'];
+
+            if (!empty($rendermatches) || !empty($eduwidgetmatches)) {
                 // Disable page-caching to "renew" render-session-data.
                 $PAGE->set_cacheable(false);
                 if (!$edusharingfilterloaded) {
-                    if ($this->service->has_rendering_2()) {
-                        $repourl = rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/');
+                    $hasrendering2 = $this->service->has_rendering_2();
+                    if ($hasrendering2) {
                         $PAGE->requires->js_call_amd('filter_edusharing/remoteloader', 'init', [$repourl]);
                         $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start', [$repourl]);
                     } else {
                         $PAGE->requires->js_call_amd('filter_edusharing/eduLegacy', 'init');
                     }
+                    if (!empty($eduwidgetmatches)) {
+                        $PAGE->requires->js_call_amd('filter_edusharing/widget', 'init');
+                        $PAGE->requires->js_call_amd('filter_edusharing/widgetloader', 'init', [$repourl, $hasrendering2]);
+                    }
                     $edusharingfilterloaded = true;
                 }
-                foreach ($esmatches as $match) {
+                foreach ($rendermatches as $match) {
                     $text = str_replace($match, $this->convert_object($match), $text);
                 }
             }
