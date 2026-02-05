@@ -84,10 +84,8 @@ class FilterLogic {
         global $edusharingfilterloaded;
         $applyfilter = str_contains($text, 'edusharing_atto') || str_contains($text, 'edusharing-widget-placeholder');
         if (!isset($options['originalformat']) || !$applyfilter) {
-            error_log('widget found: ' . $text);
             return $text;
         }
-        error_log('widget found: ' . $text);
         $repourl = rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/');
         $memento = $text;
         try {
