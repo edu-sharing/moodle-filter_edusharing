@@ -85,37 +85,6 @@ class FilterUtilities {
     }
 
     /**
-     * Function get_redirect_url
-     *
-     * @return string
-     * @throws coding_exception
-     * @throws moodle_exception
-     * @throws Exception
-     */
-    public function get_redirect_url(): string {
-        global $DB, $CFG;
-        $edusharing = $DB->get_record(
-            Constants::EDUSHARING_TABLE,
-            ['id' => optional_param('resourceId', null, PARAM_INT)],
-            '*',
-            MUST_EXIST
-        );
-        $redirecturl = $this->utils->get_redirect_url($edusharing);
-        $ts          = round(microtime(true) * 1000);
-        $redirecturl .= '&ts=' . $ts;
-        $data        = $this->utils->get_config_entry('application_appid')
-            . $ts . $this->utils->get_object_id_from_url($edusharing->object_url);
-        $redirecturl .= '&sig=' . urlencode($this->service->sign($data));
-        $redirecturl .= '&signed=' . urlencode($data);
-        $redirecturl .= '&backLink='
-            . urlencode($CFG->wwwroot . '/course/view.php?id='
-                . optional_param('containerId', null, PARAM_TEXT));
-        $ticket = $this->service->get_ticket();
-        $redirecturl .= '&ticket=' . urlencode(base64_encode($this->utils->encrypt_with_repo_key($ticket)));
-        return $redirecturl;
-    }
-
-    /**
      * Function getHtml
      *
      * @return string

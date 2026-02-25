@@ -82,6 +82,7 @@ class FilterLogic {
     public function apply_filter(string $text, array $options): string {
         global $PAGE;
         global $edusharingfilterloaded;
+        global $edusharingwcloaded;
         $applyfilter = str_contains($text, 'edusharing_atto') || str_contains($text, 'edusharing-widget-placeholder');
         if (!isset($options['originalformat']) || !$applyfilter) {
             return $text;
@@ -100,7 +101,10 @@ class FilterLogic {
                 if (!$edusharingfilterloaded) {
                     $hasrendering2 = $this->service->has_rendering_2();
                     if ($hasrendering2) {
-                        $PAGE->requires->js_call_amd('filter_edusharing/remoteloader', 'init', [$repourl]);
+                        if (!$edusharingwcloaded) {
+                            $PAGE->requires->js_call_amd('mod_edusharing/remoteloader', 'init', [$repourl]);
+                            $edusharingwcloaded = true;
+                        }
                         $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start', [$repourl]);
                     } else {
                         $PAGE->requires->js_call_amd('filter_edusharing/eduLegacy', 'init');
