@@ -59,7 +59,7 @@ final class filter_utilities_test extends advanced_testcase {
      */
     public function test_get_redirect_url_returns_returns_proper_url(): void {
         global $CFG;
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
 
@@ -196,7 +196,7 @@ final class filter_utilities_test extends advanced_testcase {
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $_POST['URL']              = 'www.test.de/test?course_id=1&obj_id=obj123&width=100&height=200&resource_id=1';
         $edureturn                 = new stdClass();
         $edureturn->object_version = '0';
