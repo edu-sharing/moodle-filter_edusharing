@@ -19,7 +19,6 @@
  */
 
 import {getSecuredNode} from './repository';
-import {getCurrentUser} from './repository';
 import Config from 'core/config';
 
 export const start = (repoUrl) => {
