@@ -98,7 +98,7 @@ class FilterUtilities {
      */
     public function get_html(): string {
         global $DB;
-        $url   = required_param('URL', PARAM_NOTAGS);
+        $url   = required_param('URL', PARAM_URL);
         $parts = parse_url($url);
         parse_str($parts['query'], $query);
         $resourceid = null;
@@ -173,14 +173,17 @@ class FilterUtilities {
             $url = str_replace(rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/'), $internalurl, $url);
         }
         $curl = new curl();
-        $curl->setopt([
-            'CURLOPT_SSL_VERIFYPEER' => false,
-            'CURLOPT_SSL_VERIFYHOST' => false,
+        $options = [
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_HEADER' => 0,
             'CURLOPT_RETURNTRANSFER' => 1,
             'CURLOPT_USERAGENT' => $_SERVER['HTTP_USER_AGENT'],
-        ]);
+        ];
+        if ($this->utils->get_config_entry('allow_registration_over_http') != '1') {
+            $options[CURLOPT_SSL_VERIFYPEER] = false;
+            $options[CURLOPT_SSL_VERIFYHOST] = false;
+        }
+        $curl->setopt($options);
         $inline = $curl->get($url);
         if ($curl->error) {
             $translation = get_string(
@@ -209,7 +212,7 @@ class FilterUtilities {
         $captionparam = optional_param('caption', '', PARAM_TEXT);
         $caption = mb_convert_encoding($captionparam, 'UTF-8', mb_detect_encoding($captionparam));
         if ($caption) {
-            $html .= '<p class="caption">' . $caption . '</p>';
+            $html .= '<p class="caption">' . s($caption) . '</p>';
         }
         return $html;
     }

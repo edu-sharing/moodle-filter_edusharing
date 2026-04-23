@@ -163,9 +163,10 @@ class FilterLogic {
             return get_string('error_parsing_queryparams');
         }
         parse_str($queryparams, $params);
+        $resourceid = (int)$params['resourceId'];
         $edusharing                = $DB->get_record(
             Constants::EDUSHARING_TABLE,
-            ['id' => (int)$params['resourceId']],
+            ['id' => $resourceid],
             '*',
             MUST_EXIST
         );
@@ -178,10 +179,10 @@ class FilterLogic {
         $renderparams['mediatype'] = $params['mediatype'];
         $renderparams['caption']   = $params['caption'] ?? '';
         $converted                 = $this->render_inline($edusharing, $renderparams);
-        $wrapperattributes[]       = 'id="' . $params['resourceId'] . '"';
+        $wrapperattributes[]       = 'id="' . $resourceid . '"';
         $wrapperattributes[]       = 'class="edu_wrapper"';
         if (str_contains($renderparams['mimetype'], 'image')) {
-            $wrapperattributes[] = 'data-id="' . $params['resourceId'] . '"';
+            $wrapperattributes[] = 'data-id="' . $resourceid . '"';
         }
         $nodestyle           = $node->getAttribute('style');
         $styleattr           = match (true) {
