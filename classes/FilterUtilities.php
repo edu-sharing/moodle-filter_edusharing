@@ -166,6 +166,7 @@ class FilterUtilities {
         $url .= '&ts=' . $ts;
         $signature = $this->service->sign($this->utils->get_config_entry('application_appid') . $ts . $query['obj_id']);
         $url .= '&sig=' . urlencode($signature);
+        $url .= '&signedAlg=' . urlencode($this->service->get_signing_algorithm());
         $url .= '&signed=' . urlencode(get_config('edusharing', 'application_appid') . $ts . $query['obj_id']);
         $url .= '&videoFormat=' . optional_param('videoFormat', '', PARAM_TEXT);
         $internalurl = $this->utils->get_internal_url();
