@@ -157,7 +157,7 @@ class FilterUtilities {
      * @throws dml_exception
      * @throws Exception
      */
-    private function get_html_legacy_fallback(string $resourceid, string $url): string {
+    private function get_html_legacy_fallback(string $resourceid, string $url, int $courseid): string {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
         $parts = parse_url($url);
@@ -197,7 +197,8 @@ class FilterUtilities {
         $html = str_replace(["\n", "\r", "\n"], '', $inline);
         $html = str_replace(
             "{{{LMS_INLINE_HELPER_SCRIPT}}}",
-            $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=" . sesskey() . "&resId=" . $resourceid,
+            $CFG->wwwroot . "/mod/edusharing/contentRedirect.php?sesskey="
+                . sesskey() . "&resourceId=" . $resourceid . "&containerId=" . $courseid,
             $html
         );
         $title = optional_param('title', '', PARAM_TEXT);
