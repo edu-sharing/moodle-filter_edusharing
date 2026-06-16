@@ -152,10 +152,10 @@ class FilterUtilities {
      *
      * @param string $resourceid
      * @param string $url
+     * @param int $courseid
      * @return string
      * @throws coding_exception
      * @throws dml_exception
-     * @throws Exception
      */
     private function get_html_legacy_fallback(string $resourceid, string $url, int $courseid): string {
         global $CFG;
