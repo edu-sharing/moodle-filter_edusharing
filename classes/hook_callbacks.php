@@ -61,13 +61,17 @@ class hook_callbacks {
             mtrace($exception);
             $repourl = '';
         }
+
+        $saferepourl = json_encode($repourl, JSON_UNESCAPED_SLASHES);
+
         global $PAGE;
         if ($PAGE->cm || $PAGE->course || $PAGE->pagelayout !== 'popup') {
             $PAGE->requires->js_init_code("
                 (function() {
+                    var repoUrl = $saferepourl;
                     var link = document.createElement('link');
                     link.rel = 'stylesheet';
-                    link.href = '$repourl/web-components/rendering-service-amd/styles.css';
+                    link.href = repoUrl + '/web-components/rendering-service-amd/styles.css';
                     document.head.appendChild(link);
                 })();
             ");

@@ -85,37 +85,6 @@ class FilterUtilities {
     }
 
     /**
-     * Function get_redirect_url
-     *
-     * @return string
-     * @throws coding_exception
-     * @throws moodle_exception
-     * @throws Exception
-     */
-    public function get_redirect_url(): string {
-        global $DB, $CFG;
-        $edusharing = $DB->get_record(
-            Constants::EDUSHARING_TABLE,
-            ['id' => optional_param('resourceId', null, PARAM_INT)],
-            '*',
-            MUST_EXIST
-        );
-        $redirecturl = $this->utils->get_redirect_url($edusharing);
-        $ts          = round(microtime(true) * 1000);
-        $redirecturl .= '&ts=' . $ts;
-        $data        = $this->utils->get_config_entry('application_appid')
-            . $ts . $this->utils->get_object_id_from_url($edusharing->object_url);
-        $redirecturl .= '&sig=' . urlencode($this->service->sign($data));
-        $redirecturl .= '&signed=' . urlencode($data);
-        $redirecturl .= '&backLink='
-            . urlencode($CFG->wwwroot . '/course/view.php?id='
-                . optional_param('containerId', null, PARAM_TEXT));
-        $ticket = $this->service->get_ticket();
-        $redirecturl .= '&ticket=' . urlencode(base64_encode($this->utils->encrypt_with_repo_key($ticket)));
-        return $redirecturl;
-    }
-
-    /**
      * Function getHtml
      *
      * @return string
@@ -129,7 +98,7 @@ class FilterUtilities {
      */
     public function get_html(): string {
         global $DB;
-        $url   = required_param('URL', PARAM_NOTAGS);
+        $url   = required_param('URL', PARAM_URL);
         $parts = parse_url($url);
         parse_str($parts['query'], $query);
         $resourceid = null;
@@ -188,7 +157,7 @@ class FilterUtilities {
      * @throws dml_exception
      * @throws Exception
      */
-    private function get_html_legacy_fallback(string $resourceid, string $url): string {
+    private function get_html_legacy_fallback(string $resourceid, string $url, int $courseid): string {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
         $parts = parse_url($url);
@@ -197,6 +166,7 @@ class FilterUtilities {
         $url .= '&ts=' . $ts;
         $signature = $this->service->sign($this->utils->get_config_entry('application_appid') . $ts . $query['obj_id']);
         $url .= '&sig=' . urlencode($signature);
+        $url .= '&signedAlg=' . urlencode($this->service->get_signing_algorithm());
         $url .= '&signed=' . urlencode(get_config('edusharing', 'application_appid') . $ts . $query['obj_id']);
         $url .= '&videoFormat=' . optional_param('videoFormat', '', PARAM_TEXT);
         $internalurl = $this->utils->get_internal_url();
@@ -204,14 +174,17 @@ class FilterUtilities {
             $url = str_replace(rtrim($this->utils->get_config_entry('application_cc_gui_url'), '/'), $internalurl, $url);
         }
         $curl = new curl();
-        $curl->setopt([
-            'CURLOPT_SSL_VERIFYPEER' => false,
-            'CURLOPT_SSL_VERIFYHOST' => false,
+        $options = [
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_HEADER' => 0,
             'CURLOPT_RETURNTRANSFER' => 1,
             'CURLOPT_USERAGENT' => $_SERVER['HTTP_USER_AGENT'],
-        ]);
+        ];
+        if ($this->utils->get_config_entry('allow_registration_over_http') != '1') {
+            $options[CURLOPT_SSL_VERIFYPEER] = false;
+            $options[CURLOPT_SSL_VERIFYHOST] = false;
+        }
+        $curl->setopt($options);
         $inline = $curl->get($url);
         if ($curl->error) {
             $translation = get_string(
@@ -224,7 +197,8 @@ class FilterUtilities {
         $html = str_replace(["\n", "\r", "\n"], '', $inline);
         $html = str_replace(
             "{{{LMS_INLINE_HELPER_SCRIPT}}}",
-            $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=" . sesskey() . "&resId=" . $resourceid,
+            $CFG->wwwroot . "/mod/edusharing/contentRedirect.php?sesskey="
+                . sesskey() . "&resourceId=" . $resourceid . "&containerId=" . $courseid,
             $html
         );
         $title = optional_param('title', '', PARAM_TEXT);
@@ -240,7 +214,7 @@ class FilterUtilities {
         $captionparam = optional_param('caption', '', PARAM_TEXT);
         $caption = mb_convert_encoding($captionparam, 'UTF-8', mb_detect_encoding($captionparam));
         if ($caption) {
-            $html .= '<p class="caption">' . $caption . '</p>';
+            $html .= '<p class="caption">' . s($caption) . '</p>';
         }
         return $html;
     }

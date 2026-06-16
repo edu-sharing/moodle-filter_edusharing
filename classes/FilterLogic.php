@@ -1,12 +1,12 @@
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
-// This program is free software: you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// This program is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
@@ -82,6 +82,7 @@ class FilterLogic {
     public function apply_filter(string $text, array $options): string {
         global $PAGE;
         global $edusharingfilterloaded;
+        global $edusharingwcloaded;
         $applyfilter = str_contains($text, 'edusharing_atto') || str_contains($text, 'edusharing-widget-placeholder');
         if (!isset($options['originalformat']) || !$applyfilter) {
             return $text;
@@ -100,7 +101,10 @@ class FilterLogic {
                 if (!$edusharingfilterloaded) {
                     $hasrendering2 = $this->service->has_rendering_2();
                     if ($hasrendering2) {
-                        $PAGE->requires->js_call_amd('filter_edusharing/remoteloader', 'init', [$repourl]);
+                        if (!$edusharingwcloaded) {
+                            $PAGE->requires->js_call_amd('mod_edusharing/remoteloader', 'init', [$repourl]);
+                            $edusharingwcloaded = true;
+                        }
                         $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start', [$repourl]);
                     } else {
                         $PAGE->requires->js_call_amd('filter_edusharing/eduLegacy', 'init');
@@ -159,9 +163,10 @@ class FilterLogic {
             return get_string('error_parsing_queryparams');
         }
         parse_str($queryparams, $params);
+        $resourceid = (int)$params['resourceId'];
         $edusharing                = $DB->get_record(
             Constants::EDUSHARING_TABLE,
-            ['id' => (int)$params['resourceId']],
+            ['id' => $resourceid],
             '*',
             MUST_EXIST
         );
@@ -174,10 +179,10 @@ class FilterLogic {
         $renderparams['mediatype'] = $params['mediatype'];
         $renderparams['caption']   = $params['caption'] ?? '';
         $converted                 = $this->render_inline($edusharing, $renderparams);
-        $wrapperattributes[]       = 'id="' . $params['resourceId'] . '"';
+        $wrapperattributes[]       = 'id="' . $resourceid . '"';
         $wrapperattributes[]       = 'class="edu_wrapper"';
         if (str_contains($renderparams['mimetype'], 'image')) {
-            $wrapperattributes[] = 'data-id="' . $params['resourceId'] . '"';
+            $wrapperattributes[] = 'data-id="' . $resourceid . '"';
         }
         $nodestyle           = $node->getAttribute('style');
         $styleattr           = match (true) {
