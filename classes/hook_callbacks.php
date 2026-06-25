@@ -71,7 +71,7 @@ class hook_callbacks {
                     var repoUrl = $saferepourl;
                     var link = document.createElement('link');
                     link.rel = 'stylesheet';
-                    link.href = repoUrl + '/web-components/rendering-service-amd/styles.css';
+                    link.href = repoUrl + '/web-components/rendering-service/styles.css';
                     document.head.appendChild(link);
                 })();
             ");

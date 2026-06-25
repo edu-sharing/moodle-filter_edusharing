@@ -58,7 +58,7 @@ function filter_edusharing_before_http_headers() {
                 (function() {
                     var link = document.createElement('link');
                     link.rel = 'stylesheet';
-                    link.href = '$repourl/web-components/rendering-service-amd/styles.css';
+                    link.href = '$repourl/web-components/rendering-service/styles.css';
                     document.head.appendChild(link);
                 })();
             ");
