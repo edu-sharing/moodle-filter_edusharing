@@ -28,4 +28,4 @@ $plugin->component    = 'filter_edusharing';
 $plugin->dependencies = ['mod_edusharing' => 2026070900];
 $plugin->requires     = 2024100700;
 $plugin->maturity     = MATURITY_STABLE;
-$plugin->release      = '7.7.7';
+$plugin->release      = '11.0.1';
