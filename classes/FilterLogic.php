@@ -105,7 +105,12 @@ class FilterLogic {
                             $PAGE->requires->js_call_amd('mod_edusharing/remoteloader', 'init', [$repourl]);
                             $edusharingwcloaded = true;
                         }
-                        $PAGE->requires->js_call_amd('filter_edusharing/edu', 'start', [$repourl]);
+                        $useserviceworker = (bool) get_config('edusharing', 'use_service_worker');
+                        $PAGE->requires->js_call_amd(
+                            'filter_edusharing/edu',
+                            'start',
+                            [$repourl, $useserviceworker]
+                        );
                     } else {
                         $PAGE->requires->js_call_amd('filter_edusharing/eduLegacy', 'init');
                     }
@@ -115,8 +120,17 @@ class FilterLogic {
                     }
                     $edusharingfilterloaded = true;
                 }
+                // One replacement per match: identical elements (a copy/pasted object yields
+                // byte-identical markup) are matched once each, so a str_replace would rewrite
+                // all of them on the first pass and leave the later passes with nothing to do.
+                // Searching from the start is safe - an already converted element no longer
+                // matches, so each pass finds the next unconverted occurrence.
                 foreach ($rendermatches as $match) {
-                    $text = str_replace($match, $this->convert_object($match), $text);
+                    $position = strpos($text, $match);
+                    if ($position === false) {
+                        continue;
+                    }
+                    $text = substr_replace($text, $this->convert_object($match), $position, strlen($match));
                 }
             }
         } catch (Exception $exception) {
@@ -174,6 +188,14 @@ class FilterLogic {
         $width                     = $node->getAttribute('width');
         $renderparams['height']    = $height;
         $renderparams['width']     = $width;
+        // Objects rendered at full width carry the height the user has chosen as a query
+        // parameter of the preview url - the height attribute keeps the aspect correct preview
+        // dimensions the editor needs. A data attribute would not do: this filter runs after
+        // the text has been cleaned, and HTMLPurifier drops data attributes. Only rendering
+        // service 2 knows what to do with the height.
+        if (isset($params['render_height'])) {
+            $renderparams['renderheight'] = $this->service->clamp_custom_height($params['render_height']);
+        }
         $renderparams['title']     = $node->getAttribute('title');
         $renderparams['mimetype']  = $params['mimetype'];
         $renderparams['mediatype'] = $params['mediatype'];
@@ -216,7 +238,13 @@ class FilterLogic {
         $url    .= '&height=' . urlencode($renderparams['height']) . '&width=' . urlencode($renderparams['width']);
         if ($this->service->has_rendering_2()) {
             $nodeid = $this->utils->get_object_id_from_url($objecturl);
-            return '<div class="eduContainer" data-type="esObject" data-node="' . $nodeid .
+            // A separate attribute, so an object that predates the height choice keeps having
+            // its height decided by the rendering service instead of by its preview dimensions.
+            // Which objects these are is decided server side, see
+            // mod_edusharing\EduSharingService::uses_custom_height.
+            $fixedheight = isset($renderparams['renderheight'])
+                ? ' data-fixed-height="' . urlencode((string)$renderparams['renderheight']) . '"' : '';
+            return '<div class="eduContainer" data-type="esObject"' . $fixedheight . ' data-node="' . $nodeid .
                 '" data-width="' . urlencode($renderparams['width'] ?? 400) .
                 '" data-height="' . urlencode($renderparams['height'] ?? 300) .
                 '" data-container="' . urlencode($edusharing->course) .

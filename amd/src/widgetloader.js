@@ -1,4 +1,8 @@
+import {install as guardRequireJs} from 'mod_edusharing/requirejsguard';
+
 export const init = (repourl, hasnewrenderer) => {
+    // Must happen before the bundle is injected - see requirejsguard for the why.
+    guardRequireJs();
     if (!hasnewrenderer) {
         window.__env = {
             EDU_SHARING_API_URL: `${repourl}/rest`

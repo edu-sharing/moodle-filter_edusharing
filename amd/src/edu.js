@@ -20,7 +20,13 @@
 
 import {renderObject} from 'mod_edusharing/renderer';
 
-export const start = (repoUrl) => {
+/**
+ * Renders every inline edu-sharing object of the page once it comes into view.
+ *
+ * @param {string} repoUrl
+ * @param {boolean} useServiceWorker
+ */
+export const start = (repoUrl, useServiceWorker) => {
     const allEduSharingObjects = document.querySelectorAll("div[data-type='esObject']");
 
     const options = {
@@ -31,8 +37,20 @@ export const start = (repoUrl) => {
 
     const observerCallback = async(entries, observer) => {
         for (const entry of entries) {
-            await renderObject(entry.target, repoUrl);
+            // an observer reports every target once on registration, whether it is on screen or
+            // not - without this the 400px margin above would have no effect at all
+            if (!entry.isIntersecting) {
+                continue;
+            }
+            // unobserve up front so a further intersection cannot start a second render of the
+            // same object while this one is still awaiting its secured node
             observer.unobserve(entry.target);
+            try {
+                await renderObject(entry.target, repoUrl, useServiceWorker);
+            } catch (error) {
+                // one broken object must not stop the remaining ones of this batch from rendering
+                window.console.error(error);
+            }
         }
     };
 
