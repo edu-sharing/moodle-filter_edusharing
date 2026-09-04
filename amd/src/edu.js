@@ -19,41 +19,97 @@
  */
 
 import {renderObject} from 'mod_edusharing/renderer';
+import {eventTypes} from 'core_filters/events';
+import {markObserved, observableElements} from './observation';
+
+/**
+ * The placeholder this filter leaves behind for every inline object.
+ *
+ * @type {string}
+ */
+const OBJECT_SELECTOR = "div[data-type='esObject']";
+
+const OBSERVER_OPTIONS = {
+    root: null,
+    rootMargin: "400px",
+    threshold: 0
+};
+
+/**
+ * @type {IntersectionObserver|null}
+ */
+let observer = null;
+
+/**
+ * @type {string}
+ */
+let repositoryUrl = '';
+
+/**
+ * @type {boolean}
+ */
+let serviceWorkerEnabled = false;
+
+/**
+ * @param {IntersectionObserverEntry[]} entries
+ * @param {IntersectionObserver} currentObserver
+ * @returns {Promise<void>}
+ */
+const observerCallback = async(entries, currentObserver) => {
+    for (const entry of entries) {
+        // an observer reports every target once on registration, whether it is on screen or
+        // not - without this the 400px margin above would have no effect at all
+        if (!entry.isIntersecting) {
+            continue;
+        }
+        // unobserve up front so a further intersection cannot start a second render of the
+        // same object while this one is still awaiting its secured node
+        currentObserver.unobserve(entry.target);
+        try {
+            await renderObject(entry.target, repositoryUrl, serviceWorkerEnabled);
+        } catch (error) {
+            // one broken object must not stop the remaining ones of this batch from rendering
+            window.console.error(error);
+        }
+    }
+};
+
+/**
+ * Hands every inline object below the given root that is not being rendered already to the
+ * observer.
+ *
+ * @param {Document|Element} root
+ * @returns {void}
+ */
+const observeObjectsWithin = (root) => {
+    observableElements(root, OBJECT_SELECTOR).forEach(element => {
+        markObserved(element);
+        observer.observe(element);
+    });
+};
 
 /**
  * Renders every inline edu-sharing object of the page once it comes into view.
+ *
+ * Course formats that fetch their content by ajax - format_tiles for one - throw the markup of
+ * a whole section away and replace it with a freshly filtered copy, long after this has run.
+ * That copy carries new placeholders which nothing observes, so its objects would keep
+ * spinning; core_filters/contentUpdated is what such a format announces the exchange with, and
+ * is therefore what picks the new placeholders up. Repeated calls only add what is new, so it
+ * does not matter how often a format re-runs this.
  *
  * @param {string} repoUrl
  * @param {boolean} useServiceWorker
  */
 export const start = (repoUrl, useServiceWorker) => {
-    const allEduSharingObjects = document.querySelectorAll("div[data-type='esObject']");
-
-    const options = {
-        root: null,
-        rootMargin: "400px",
-        threshold: 0
-    };
-
-    const observerCallback = async(entries, observer) => {
-        for (const entry of entries) {
-            // an observer reports every target once on registration, whether it is on screen or
-            // not - without this the 400px margin above would have no effect at all
-            if (!entry.isIntersecting) {
-                continue;
-            }
-            // unobserve up front so a further intersection cannot start a second render of the
-            // same object while this one is still awaiting its secured node
-            observer.unobserve(entry.target);
-            try {
-                await renderObject(entry.target, repoUrl, useServiceWorker);
-            } catch (error) {
-                // one broken object must not stop the remaining ones of this batch from rendering
-                window.console.error(error);
-            }
-        }
-    };
-
-    const observer = new IntersectionObserver(observerCallback, options);
-    allEduSharingObjects.forEach(element => observer.observe(element));
+    repositoryUrl = repoUrl;
+    serviceWorkerEnabled = useServiceWorker;
+    if (observer === null) {
+        observer = new IntersectionObserver(observerCallback, OBSERVER_OPTIONS);
+        document.addEventListener(eventTypes.filterContentUpdated, event => {
+            const nodes = event.detail?.nodes ?? [];
+            Array.prototype.forEach.call(nodes, node => observeObjectsWithin(node));
+        });
+    }
+    observeObjectsWithin(document);
 };
