@@ -20,7 +20,7 @@
 
 import {renderObject} from 'mod_edusharing/renderer';
 import {eventTypes} from 'core_filters/events';
-import {markObserved, observableElements} from './observation';
+import {markObserved, observableElements, watchForAddedElements} from './observation';
 
 /**
  * The placeholder this filter leaves behind for every inline object.
@@ -110,6 +110,8 @@ export const start = (repoUrl, useServiceWorker) => {
             const nodes = event.detail?.nodes ?? [];
             Array.prototype.forEach.call(nodes, node => observeObjectsWithin(node));
         });
+        // The event above is not emitted by every course format - see watchForAddedElements.
+        watchForAddedElements(OBJECT_SELECTOR, () => observeObjectsWithin(document));
     }
     observeObjectsWithin(document);
 };

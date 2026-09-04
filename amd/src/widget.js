@@ -1,5 +1,5 @@
 import {eventTypes} from 'core_filters/events';
-import {markObserved, observableElements} from './observation';
+import {markObserved, observableElements, watchForAddedElements} from './observation';
 
 /**
  * The placeholder this filter leaves behind for every widget.
@@ -101,6 +101,8 @@ export const init = () => {
             const nodes = event.detail?.nodes ?? [];
             Array.prototype.forEach.call(nodes, node => observeWidgetsWithin(node));
         });
+        // The event above is not emitted by every course format - see watchForAddedElements.
+        watchForAddedElements(PLACEHOLDER_SELECTOR, () => observeWidgetsWithin(document));
     }
     observeWidgetsWithin(document);
 };
