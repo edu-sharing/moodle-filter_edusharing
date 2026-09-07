@@ -27,5 +27,5 @@ $plugin->version      = 2026090700;
 $plugin->component    = 'filter_edusharing';
 $plugin->dependencies = ['mod_edusharing' => 2026090700];
 $plugin->requires     = 2024100700;
-$plugin->maturity     = MATURITY_BETA;
+$plugin->maturity     = MATURITY_STABLE;
 $plugin->release      = '11.0.2';
