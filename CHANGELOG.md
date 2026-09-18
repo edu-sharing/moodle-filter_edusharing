@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [11.0.3] - 2026-09-18
+
+### Fixed
+
+- Non-ascii attributes of an inline object are read as utf-8 again. Without a charset hint the
+  parser treats the markup as ISO-8859-1, which reached the legacy rendering proxy as a mangled
+  title
+- Widget placeholders are rendered again: the whitelist of custom elements held a widget type
+  instead of the element name the editor stores, so every placeholder was skipped. The widget
+  type is now validated on its own attribute, accepting both "content-teaser" and
+  "wlo-content-teaser".
+
 ## [11.0.2] - 2026-09-07
 
 ### Fixed

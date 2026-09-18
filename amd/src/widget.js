@@ -18,6 +18,11 @@ const widgetAttributeWhitelist = [
 ];
 
 const allowedCustomElements = [
+    'edu-sharing-generic-widget'
+];
+
+const allowedWidgetTypes = [
+    'content-teaser',
     'wlo-content-teaser'
 ];
 
@@ -43,6 +48,9 @@ const renderWidget = (element) => {
         return;
     }
     const attrs = decodedData.attrs ?? {};
+    if (!allowedWidgetTypes.includes(attrs['widget-type'])) {
+        return;
+    }
     const widget = document.createElement(decodedData.tag);
     Object.entries(attrs).forEach(([name, value]) => {
         if (!widgetAttributeWhitelist.includes(name)) {

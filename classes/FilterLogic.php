@@ -155,7 +155,9 @@ class FilterLogic {
         global $DB;
         libxml_use_internal_errors(true);
         $doc = new DOMDocument();
-        $doc->loadHTML($object);
+        // Without the charset hint libxml reads the fragment as ISO-8859-1, which mangles every
+        // non-ascii attribute - the title ends up in the legacy proxy url below.
+        $doc->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $object);
         $errors = libxml_get_errors();
         if (!empty($errors)) {
             debugging("Error parsing ES object: " . $object);
