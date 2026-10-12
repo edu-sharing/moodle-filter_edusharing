@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The stylesheet of the rendering service is no longer requested from the repository on every
   Moodle page.
+- Embedded objects whose title contains double quotes are rendered again instead of showing only
+  their preview image. Requires mod_edusharing 2026093000 or later.
 
 ## [11.0.3] - 2026-09-18
 
