@@ -24,10 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$callbacks = [
-    [
-        'hook' => \core\hook\output\before_http_headers::class,
-        'callback' => [\filter_edusharing\hook_callbacks::class, 'before_http_headers'],
-        'priority' => 500,
-    ],
-];
+// The stylesheet of the rendering service is loaded by mod_edusharing/remoteloader where content is
+// rendered. This file is kept (empty) so that unpacking a release over an older one drops the former
+// registration.
+$callbacks = [];

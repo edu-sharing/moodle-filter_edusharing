@@ -19,9 +19,6 @@ declare(strict_types=1);
 namespace filter_edusharing;
 
 use core\hook\output\before_http_headers;
-use Exception;
-use mod_edusharing\UtilityFunctions;
-use mod_edusharing\EduSharingService;
 
 /**
  * Class hook_callbacks
@@ -35,46 +32,13 @@ class hook_callbacks {
     /**
      * Function before_http_headers
      *
-     * Executes operations before HTTP headers are sent, such as injecting required configurations,
-     * verifying database state, and appending necessary stylesheets to the page.
+     * This callback no longer does anything and is not registered any more. It only remains so that a
+     * hook callback cache built before the upgrade can still call it without a fatal error.
      *
+     * @deprecated since 11.0.4 - remove in 12.0
      * @param before_http_headers $hook The hook instance associated with the current execution of the hook.
      * @return void
      */
     public static function before_http_headers(before_http_headers $hook): void {
-        global $DB;
-        $tables = $DB->get_tables();
-        if (! in_array('config', $tables)) {
-            return;
-        }
-        $utils = new UtilityFunctions();
-        if (empty($utils->get_internal_url())) {
-            return;
-        }
-        $service = new EduSharingService();
-        if (!$service->has_rendering_2()) {
-            return;
-        }
-        try {
-            $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/');
-        } catch (Exception $exception) {
-            mtrace($exception);
-            $repourl = '';
-        }
-
-        $saferepourl = json_encode($repourl, JSON_UNESCAPED_SLASHES);
-
-        global $PAGE;
-        if ($PAGE->cm || $PAGE->course || $PAGE->pagelayout !== 'popup') {
-            $PAGE->requires->js_init_code("
-                (function() {
-                    var repoUrl = $saferepourl;
-                    var link = document.createElement('link');
-                    link.rel = 'stylesheet';
-                    link.href = repoUrl + '/web-components/rendering-service/styles.css';
-                    document.head.appendChild(link);
-                })();
-            ");
-        }
     }
 }
