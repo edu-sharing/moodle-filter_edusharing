@@ -22,6 +22,7 @@ use coding_exception;
 use dml_exception;
 use DOMDocument;
 use Exception;
+use html_writer;
 use mod_edusharing\Constants;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
@@ -92,6 +93,13 @@ class FilterLogic {
         $memento = $text;
         try {
             $this->service->require_edu_login(checksessionkey: false);
+        } catch (Exception $exception) {
+            // Without a ticket, e.g. while the repository is unreachable, nothing can be rendered,
+            // and preview.php cannot deliver the stored preview images either.
+            trigger_error($exception->getMessage(), E_USER_WARNING);
+            return $this->replace_objects_with_notice($text);
+        }
+        try {
             $esmatches = $this->utils->get_inline_object_matches($text);
             $rendermatches = $esmatches['rendermatches'];
             $eduwidgetmatches = $esmatches['widgetmatches'];
@@ -143,6 +151,32 @@ class FilterLogic {
         } catch (Exception $exception) {
             trigger_error($exception->getMessage(), E_USER_WARNING);
             return $memento;
+        }
+        return $text;
+    }
+
+    /**
+     * Function replace_objects_with_notice
+     *
+     * Puts a notice in the place of every object, as mod_edusharing's renderer does for an object
+     * it cannot load.
+     *
+     * @param string $text
+     * @return string
+     * @throws coding_exception
+     */
+    private function replace_objects_with_notice(string $text): string {
+        $notice = html_writer::div(
+            get_string('error_loading_secured_node', 'edusharing'),
+            'alert alert-warning edusharing-render-notice',
+            ['role' => 'status']
+        );
+        foreach ($this->utils->get_inline_object_matches($text)['rendermatches'] as $match) {
+            $position = strpos($text, $match);
+            if ($position === false) {
+                continue;
+            }
+            $text = substr_replace($text, $notice, $position, strlen($match));
         }
         return $text;
     }
