@@ -83,6 +83,7 @@ class FilterLogic {
         global $PAGE;
         global $edusharingfilterloaded;
         global $edusharingwcloaded;
+        global $edusharingwidgetloaded;
         $applyfilter = str_contains($text, 'edusharing_atto') || str_contains($text, 'edusharing-widget-placeholder');
         if (!isset($options['originalformat']) || !$applyfilter) {
             return $text;
@@ -114,11 +115,17 @@ class FilterLogic {
                     } else {
                         $PAGE->requires->js_call_amd('filter_edusharing/eduLegacy', 'init');
                     }
-                    if (!empty($eduwidgetmatches)) {
-                        $PAGE->requires->js_call_amd('filter_edusharing/widget', 'init');
-                        $PAGE->requires->js_call_amd('filter_edusharing/widgetloader', 'init', [$repourl, $hasrendering2]);
-                    }
                     $edusharingfilterloaded = true;
+                }
+                // Loaded on its own: an earlier text on the page may have had objects, but no widget.
+                if (!empty($eduwidgetmatches) && !$edusharingwidgetloaded) {
+                    $PAGE->requires->js_call_amd('filter_edusharing/widget', 'init');
+                    $PAGE->requires->js_call_amd(
+                        'filter_edusharing/widgetloader',
+                        'init',
+                        [$repourl, $this->service->has_rendering_2()]
+                    );
+                    $edusharingwidgetloaded = true;
                 }
                 // One replacement per match: identical elements (a copy/pasted object yields
                 // byte-identical markup) are matched once each, so a str_replace would rewrite
