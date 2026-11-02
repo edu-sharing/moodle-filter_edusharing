@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [11.0.5] - 2026-11-02
+
+### Fixed
+
+- Widgets are shown again in a text that follows an earlier text with embedded objects but no
+  widget. The widget scripts were only loaded together with the object scripts, once per page, so
+  they were never loaded when the first text with objects on the page had no widget.
+- Embedded objects show mod_edusharing's notice for an object that cannot be loaded while the
+  repository is unreachable, instead of a broken preview image.
+
+### Changed
+
+- Bumped the Moodle version in the CI pipeline to 5.3
+
 ## [11.0.4] - 2026-10-12
 
 ### Fixed
